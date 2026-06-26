@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
+import { FieldValue } from "firebase-admin/firestore";
 import { encryptSecret } from "@/lib/crypto";
 import { findGroupAccess, getCurrentUser } from "@/lib/auth";
 import { createGoogleDocsOAuthClient, createPrayerDocument, type GoogleDocSharingMode } from "@/lib/google-docs";
-import { saveGoogleDocConnection } from "@/lib/firebase/firestore";
+import { groupAuditEvents, saveGoogleDocConnection } from "@/lib/firebase/firestore";
 
 type ConnectionState = {
   state: string;
@@ -70,7 +71,29 @@ export async function GET(request: Request) {
       lastPublishedAt: new Date().toISOString(),
       lastPublicationError: null,
     });
-  } catch {
+    await groupAuditEvents(access.group.id).add({
+      eventType: "google_doc_connected",
+      actorUserId: user.id,
+      sharingMode: connectionState.sharingMode,
+      publicationSucceeded: true,
+      createdAt: FieldValue.serverTimestamp(),
+    }).catch((auditError) => {
+      console.error("Google Doc connection audit write failed.", {
+        groupId: access.group.id,
+        errorName: auditError instanceof Error ? auditError.name : "UnknownError",
+      });
+    });
+  } catch (error) {
+    console.error("Google Doc connection failed.", {
+      groupId: access.group.id,
+      actorUserId: user.id,
+      errorName: error instanceof Error ? error.name : "UnknownError",
+    });
+    await groupAuditEvents(access.group.id).add({
+      eventType: "google_doc_connection_failed",
+      actorUserId: user.id,
+      createdAt: FieldValue.serverTimestamp(),
+    }).catch(() => undefined);
     return clearStateAndRedirect("connection-failed");
   }
 

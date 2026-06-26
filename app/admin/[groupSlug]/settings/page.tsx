@@ -38,6 +38,9 @@ export default async function GroupSettingsPage({
             <p className="muted">
               This group has a connected document with <strong>{connection.sharingMode === "anyone_with_link_viewer" ? "anyone-with-link viewer" : "restricted"}</strong> access.
             </p>
+            <p className={connection.lastPublicationStatus === "failed" ? "error" : "success"}>
+              Publication status: {connection.lastPublicationStatus === "failed" ? "Needs attention" : "Healthy"}
+            </p>
             <a className="button" href={connection.documentUrl} rel="noreferrer" target="_blank">
               Open {access.group.name} Google Doc
             </a>
@@ -47,6 +50,9 @@ export default async function GroupSettingsPage({
             {connection.lastPublicationStatus === "failed" ? (
               <p className="error">{connection.lastPublicationError || "The last publication attempt failed."}</p>
             ) : null}
+            <p className="muted">
+              Connection activity and publication retries are recorded in the <Link href={`/admin/${encodeURIComponent(groupSlug)}/audit`}>group audit log</Link>.
+            </p>
             <GoogleDocSettingsForm groupSlug={groupSlug} initialIncludeAnswered={connection.includeAnsweredSection} />
             <p className="notice">
               The app publishes approved requests here. If enabled, answered requests are included in their own section. Archived, rejected, and removed requests are never published.

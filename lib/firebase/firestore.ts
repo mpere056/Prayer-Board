@@ -29,6 +29,8 @@ export type GoogleDocConnection = {
   lastPublishedAt?: string;
   lastPublicationStatus: "ready" | "failed";
   lastPublicationError?: string | null;
+  createdAt?: { toMillis(): number; toDate(): Date };
+  updatedAt?: { toMillis(): number; toDate(): Date };
 };
 
 export type PrayerRequestStatus = "pending" | "approved" | "answered" | "archived" | "rejected" | "removed";
@@ -71,6 +73,8 @@ export type GroupAuditEvent = {
   targetUserId?: string | null;
   role?: GroupRole | null;
   archivedCount?: number | null;
+  publicationSucceeded?: boolean | null;
+  sharingMode?: "restricted" | "anyone_with_link_viewer" | null;
   createdAt?: { toMillis(): number; toDate(): Date };
 };
 

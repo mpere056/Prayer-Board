@@ -49,6 +49,7 @@ Enable an administrator to create a dedicated group-owned, view-only Google Doc.
 - Encrypted Firestore connection document.
 - Document renderer and group-scoped publisher.
 - Admin Google Doc settings page.
+- Group-scoped audit events for connection success, connection failure, settings changes, retries, and publication outcome.
 
 ## Completion checkpoint
 

@@ -149,6 +149,7 @@ Templates are optional prompts that fill or guide the main text area; they never
 - The app must clearly warn administrators that anyone with the link can read every approved request in that document. The group should use named requests only with that audience in mind.
 - The app must never grant Google Doc edit or comment access to general readers. Document editing stays with the connected administrator or designated document owners.
 - The Doc is updated after an administrator approves, edits, answers, archives, restores, or removes a request. The app should display the last successful publication time and any sync failure to administrators.
+- Google Doc connection, disconnection, settings changes, retry attempts, and retry outcomes are recorded in the group audit log without request text or OAuth credentials.
 - The published document contains only active approved requests by default. It may include a separate **Answered prayers and praise** section if the group enables it. Pending, rejected, removed, and archived requests are never published.
 - A group’s Google Doc must contain only requests from that group. It must never combine Actualize and AVBC requests or expose links/content from another group.
 - If a group disconnects its Google Doc, publication stops and the app alerts administrators that they must revoke sharing or manually remove existing document content if required.

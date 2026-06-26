@@ -50,6 +50,7 @@ export async function POST(
   await groupAuditEvents(access.group.id).add({
     eventType: action === "retry" ? "google_doc_retry" : "google_doc_settings_updated",
     actorUserId: user.id,
+    publicationSucceeded: publication.published,
     createdAt: FieldValue.serverTimestamp(),
   });
 

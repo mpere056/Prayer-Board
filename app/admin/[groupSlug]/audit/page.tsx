@@ -16,6 +16,8 @@ function eventLabel(event: GroupAuditEvent) {
     member_promote: "Member promoted",
     member_demote: "Member demoted",
     member_remove: "Member removed",
+    google_doc_connected: "Google Doc connected",
+    google_doc_connection_failed: "Google Doc connection failed",
     google_doc_disconnected: "Google Doc disconnected",
     google_doc_retry: "Google Doc publication retried",
     google_doc_settings_updated: "Google Doc settings updated",
@@ -41,6 +43,8 @@ function eventDetails(event: GroupAuditEvent) {
   if (event.targetUserId) details.push(`User ${event.targetUserId}`);
   if (event.role) details.push(`Role: ${event.role}`);
   if ("archivedCount" in event && typeof event.archivedCount === "number") details.push(`${event.archivedCount} archived`);
+  if (event.sharingMode) details.push(event.sharingMode === "anyone_with_link_viewer" ? "Anyone with link can view" : "Restricted sharing");
+  if (typeof event.publicationSucceeded === "boolean") details.push(event.publicationSucceeded ? "Publication succeeded" : "Publication failed");
   if (event.actorUserId) details.push(`By ${event.actorUserId}`);
 
   return details;
