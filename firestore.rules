@@ -1,0 +1,42 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isMember(groupId) {
+      return signedIn() && exists(/databases/$(database)/documents/groups/$(groupId)/members/$(request.auth.uid));
+    }
+
+    function isAdmin(groupId) {
+      return isMember(groupId) && get(/databases/$(database)/documents/groups/$(groupId)/members/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    match /groups/{groupId} {
+      allow get: if isMember(groupId);
+      allow list, create, update, delete: if false;
+
+      match /members/{userId} {
+        allow get, list: if isAdmin(groupId);
+        allow create, update, delete: if false;
+      }
+
+      match /requests/{requestId} {
+        allow get, list: if isMember(groupId)
+          && resource.data.status in ['approved', 'answered', 'archived'];
+        allow create, update, delete: if false;
+      }
+
+      match /private/{documentId} {
+        allow read, write: if false;
+      }
+    }
+
+    match /users/{userId} {
+      allow get: if signedIn() && request.auth.uid == userId;
+      allow create, update, delete, list: if false;
+    }
+  }
+}

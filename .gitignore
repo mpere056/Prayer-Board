@@ -1,0 +1,28 @@
+# dependencies
+/node_modules
+
+# Next.js
+/.next
+/out
+
+# Environment and credential files. Keep only the documented placeholder file.
+.env
+.env.*
+!.env.example
+
+# Private keys, certificates, and downloaded cloud credentials
+*.pem
+*.key
+*.p12
+*.pfx
+*service-account*.json
+*service_account*.json
+*firebase-adminsdk*.json
+*credentials*.json
+
+# test and diagnostics
+/coverage
+*.tsbuildinfo
+
+# Vercel
+.vercel
