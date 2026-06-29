@@ -9,6 +9,7 @@ import {
   type RequestChange,
 } from "@/lib/firebase/firestore";
 import { publishCurrentGroupPrayerRequests } from "@/lib/google-doc-publication";
+import { canApproveChange } from "@/lib/request-workflow";
 
 const reviewActions = new Set(["approve", "decline"]);
 
@@ -47,11 +48,8 @@ export async function POST(
   }
 
   if (reviewAction === "approve") {
-    if (change.action === "mark_answered" && currentStatus !== "approved") {
-      return NextResponse.json({ error: "This request is no longer active and cannot be marked answered." }, { status: 409 });
-    }
-    if (change.action === "remove" && currentStatus === "removed") {
-      return NextResponse.json({ error: "This request has already been removed." }, { status: 409 });
+    if (!canApproveChange(change.action, currentStatus)) {
+      return NextResponse.json({ error: "The request is no longer in a state that allows this change." }, { status: 409 });
     }
     if (change.action === "update" && (!change.proposedBody || !change.proposedCategory || !change.proposedDuration)) {
       return NextResponse.json({ error: "The proposed update is incomplete." }, { status: 409 });

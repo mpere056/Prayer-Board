@@ -70,7 +70,7 @@ Every prayer request is stored beneath exactly one group document. There is no c
 
 ### Automated
 
-- Unit tests: validation, status transitions, anonymity display, archival eligibility, and document rendering.
+- Unit tests: lifecycle transitions, publication triggers, submitter-change eligibility, validation, anonymity display, archival eligibility, and document rendering. The lifecycle suite runs with Nodeâ€™s built-in test runner.
 - Integration tests: Firebase session verification, group-role checks, Firestore rules, Google Doc publication state, and private-token access.
 - Browser tests: anonymous submission, Google sign-in, named submission, submitter change requests, moderation, publication status, and mobile flows.
 

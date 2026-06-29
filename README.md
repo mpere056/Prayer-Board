@@ -58,6 +58,7 @@ Cost-sensitive setup notes are tracked in [COST_GUARDRAILS.md](COST_GUARDRAILS.m
 ## Checks
 
 ```powershell
+npm test
 npm run lint
 npm run typecheck
 npm run build

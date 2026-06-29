@@ -36,6 +36,7 @@ Prepare the product for a real first group. Validate privacy, security, reliabil
 10. Run a small pilot with trusted users, observe where they hesitate, and fix high-impact clarity or safety issues.
 11. Configure the production domain, Firebase environment values, deployed Firestore rules, OAuth redirect URLs, and Vercel deployment settings.
 12. Conduct production smoke tests using non-sensitive test requests, then remove those tests before inviting the real group.
+13. Keep automated lifecycle regression tests in the normal verification suite so invalid transitions and publication omissions fail before deployment.
 
 ## Launch checklist
 
@@ -66,6 +67,7 @@ Prepare the product for a real first group. Validate privacy, security, reliabil
 ## Deliverables
 
 - Production deployment and documented environment configuration.
+- Automated lifecycle and submitter-change regression tests.
 - Security and privacy review results.
 - Monitoring and backup/recovery runbook.
 - Administrator quick-start and group-reader guidance.

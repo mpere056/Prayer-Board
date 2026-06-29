@@ -7,12 +7,11 @@ import {
   type PrayerRequestStatus,
 } from "@/lib/firebase/firestore";
 import { publishCurrentGroupPrayerRequests } from "@/lib/google-doc-publication";
+import { shouldRepublish, transitionFor, type RequestLifecycleAction } from "@/lib/request-workflow";
 
 const actions = new Set(["approve", "reject", "remove", "mark_answered", "archive", "restore", "save_edits"]);
 const categories = new Set(["health", "family_relationships", "work_school", "grief", "guidance", "praise", "other"]);
 const durations = new Set(["this_week", "this_month", "ongoing", "unspecified"]);
-
-type RequestAction = "approve" | "reject" | "remove" | "mark_answered" | "archive" | "restore" | "save_edits";
 
 function text(value: unknown, maximumLength: number) {
   return typeof value === "string" ? value.trim().slice(0, maximumLength) : "";
@@ -32,27 +31,6 @@ function parseRequestEdits(input: Record<string, unknown>) {
     category,
     duration,
   };
-}
-
-function transitionFor(action: RequestAction, currentStatus: PrayerRequestStatus, statusBeforeArchive?: PrayerRequestStatus | null) {
-  if (action === "approve" && currentStatus === "pending") return { nextStatus: "approved" as const };
-  if (action === "reject" && currentStatus === "pending") return { nextStatus: "rejected" as const };
-  if (action === "mark_answered" && currentStatus === "approved") return { nextStatus: "answered" as const };
-  if (action === "archive" && (currentStatus === "approved" || currentStatus === "answered")) {
-    return { nextStatus: "archived" as const, statusBeforeArchive: currentStatus };
-  }
-  if (action === "restore" && currentStatus === "archived") {
-    return {
-      nextStatus: statusBeforeArchive === "answered" ? "answered" as const : "approved" as const,
-      statusBeforeArchive: null,
-    };
-  }
-  if (action === "remove" && currentStatus !== "removed") return { nextStatus: "removed" as const };
-  return null;
-}
-
-function shouldRepublish(currentStatus: PrayerRequestStatus, nextStatus: PrayerRequestStatus) {
-  return ["approved", "answered"].includes(currentStatus) || ["approved", "answered"].includes(nextStatus);
 }
 
 export async function POST(
@@ -100,7 +78,7 @@ export async function POST(
     return NextResponse.json({ ok: true });
   }
 
-  const transition = transitionFor(action as RequestAction, currentStatus, currentData?.statusBeforeArchive);
+  const transition = transitionFor(action as RequestLifecycleAction, currentStatus, currentData?.statusBeforeArchive);
   if (!transition) {
     return NextResponse.json({ error: "This request is no longer available for that action." }, { status: 409 });
   }

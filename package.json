@@ -2,6 +2,7 @@
   "name": "prayer-board",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "engines": {
     "node": "22.x"
   },
@@ -11,6 +12,7 @@
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
+    "test": "node --experimental-strip-types --test tests/request-workflow.test.ts",
     "bootstrap:firebase": "node scripts/bootstrap-firebase.mjs",
     "vercel:env:push": "node scripts/push-vercel-env.mjs"
   },

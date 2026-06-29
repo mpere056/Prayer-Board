@@ -9,6 +9,7 @@ import {
   type RequestChangeAction,
   type StoredPrayerRequest,
 } from "@/lib/firebase/firestore";
+import { canSubmitChange } from "@/lib/request-workflow";
 
 const actions = new Set<RequestChangeAction>(["update", "mark_answered", "remove"]);
 const categories = new Set(["health", "family_relationships", "work_school", "grief", "guidance", "praise", "other"]);
@@ -42,11 +43,8 @@ export async function POST(
   const action = payload.action as RequestChangeAction;
   if (!actions.has(action)) return NextResponse.json({ error: "Unknown request action." }, { status: 400 });
 
-  if (["removed", "rejected"].includes(prayerRequest.status)) {
-    return NextResponse.json({ error: "This request is no longer available for changes." }, { status: 409 });
-  }
-  if (action === "mark_answered" && prayerRequest.status !== "approved") {
-    return NextResponse.json({ error: "Only an active approved request can be marked answered." }, { status: 409 });
+  if (!canSubmitChange(action, prayerRequest.status)) {
+    return NextResponse.json({ error: action === "mark_answered" ? "Only an active approved request can be marked answered." : "This request is no longer available for changes." }, { status: 409 });
   }
 
   const changeReference = groupRequestChanges(group.id).doc(requestId);
