@@ -21,7 +21,7 @@ Prayer Board provides one respectful workflow:
 ## 3. Product goals
 
 - Make anonymous submission take less than two minutes, without requiring sign-in or asking the submitter to choose a group.
-- Make member and administrator sign-in feel familiar and password-free.
+- Make member and administrator sign-in feel familiar, offering Google sign-in and verified email accounts.
 - Protect privacy through group access, clear sharing choices, and administrator review.
 - Publish an uncluttered, prayer-focused Google Doc that groups can open without app sign-in.
 - Make moderation straightforward for a small group of trusted administrators.
@@ -45,7 +45,7 @@ Anyone who has the group’s request-submission link. They can submit anonymousl
 
 ### Authenticated submitter
 
-Anyone who signs in through an approved SSO provider. They can submit a request under their verified account identity, but do not gain board access unless they are also an invited group member. They can privately see requests linked to their account and ask an administrator to update, mark answered, or remove them.
+Anyone who signs in through Google or a verified email account. They can submit a request under their verified account identity, but do not gain board access unless they are also an invited group member. They can privately see requests linked to their account and ask an administrator to update, mark answered, or remove them.
 
 ### Google Doc reader
 
@@ -65,7 +65,7 @@ A trusted group member who can approve, edit for privacy, reject, archive, resto
 
 1. The submitter opens an unlisted group-specific link.
 2. They choose **Submit anonymously** or **Sign in to submit with my name**.
-3. An anonymous submitter writes a request without creating an account. A named submitter signs in with SSO, then writes their request.
+3. An anonymous submitter writes a request without creating an account. A named submitter signs in with Google or a verified email account, then writes their request.
 4. They choose an optional template and category, and confirm that they have permission to share the information.
 5. They submit the request and see a kind confirmation that it will be reviewed.
 
@@ -78,7 +78,7 @@ A trusted group member who can approve, edit for privacy, reject, archive, resto
 
 ### Optional app prayer board
 
-1. A member signs in with an approved SSO provider and opens their group’s board.
+1. A member signs in with Google or a verified email account and opens their group’s board.
 2. They see approved, active requests in a clear card-based list.
 3. They filter or search if useful.
 4. They open or read a request and select **I prayed**.
@@ -98,19 +98,19 @@ A trusted group member who can approve, edit for privacy, reject, archive, resto
 - The first groups are Actualize and AVBC. The data model supports adding more isolated groups later.
 - Each group has a name, description, timezone, a private app slug, and a unique opaque submission token.
 - A request belongs to exactly one group. It cannot be submitted to, published to, or viewed in more than one group.
-- Prayer-board access requires SSO sign-in and an active membership in that group.
+- Prayer-board access requires Firebase Authentication sign-in and an active membership in that group.
 - Administrators can invite, remove, and promote group members.
 - Every group has a distinct unlisted submission URL, such as `/submit/[submission-token]`. The URL resolves the target group privately; the form never asks the submitter to choose a group or shows other group names.
 - The submission link may be shared publicly, but it grants submission to that single group only—not app-board access or visibility into any other group.
 - The app must prevent users from accessing another group’s requests, membership, or administration areas.
-- The application never creates, stores, or resets its own passwords.
+- The application never stores passwords in Firestore or custom application storage. Firebase Authentication owns email-password creation, verification, and reset.
 
 ### 7.2 Authentication and identity
 
-- The application uses only SSO/OAuth sign-in through trusted providers; it does not offer email-password authentication.
-- Google is required for the first release. Microsoft and Apple may be enabled when provider setup and support needs are ready.
-- SSO is required to view a prayer board, use administrator functions, or submit a request that displays a name.
-- An SSO account may submit to the group behind its unlisted link without becoming a board member; membership is a separate authorization decision.
+- The application supports Google sign-in and verified email/password accounts through Firebase Authentication.
+- Google is required for the first release. Email/password is also allowed for people who prefer not to use Google. Microsoft and Apple may be enabled when provider setup and support needs are ready.
+- Firebase Authentication is required to view a prayer board, use administrator functions, or submit a request that displays a name.
+- An authenticated account may submit to the group behind its unlisted link without becoming a board member; membership is a separate authorization decision.
 - For named submissions, the displayed name is the authenticated account’s profile name or a name previously set by that signed-in user. It is never an arbitrary unauthenticated text field.
 - The system stores only the minimum identity data required to associate an account and authorize access, such as provider, stable provider subject identifier, email when supplied, and profile display name.
 
@@ -118,7 +118,7 @@ A trusted group member who can approve, edit for privacy, reject, archive, resto
 
 - The initial choice is **Submit anonymously** or **Sign in to submit with my name**.
 - Anonymous submission requires no account, password, or email address.
-- Named submission redirects to SSO sign-in when the person is not already authenticated.
+- Named submission redirects to sign-in when the person is not already authenticated. If they typed a draft first, the app should preserve it locally while they sign in.
 - A submitter can enter a title and main prayer-request text.
 - A request must have a non-empty main text. The title may be optional in the first release, with a generated fallback such as “Prayer request.”
 - A submitter can choose a category: health, family and relationships, work or school, grief, guidance, praise, or other.
@@ -208,8 +208,8 @@ The document groups requests by category when there are enough requests to make 
 - Use clear language: an anonymous guest submission has no associated account identity; “Anonymous to the group” from a signed-in user is still linked to that user for administrators.
 - Before enabling “anyone with the link” access to the Google Doc, require an administrator acknowledgement that the content can be forwarded and that link sharing is not the same as member authentication.
 - Do not display email addresses or internal identifiers on the board.
-- Store only information needed to operate the group and SSO authorization; avoid collecting sensitive information beyond the request itself.
-- Do not collect or store application passwords, password-reset tokens, or password hints.
+- Store only information needed to operate the group and Firebase authorization; avoid collecting sensitive information beyond the request itself.
+- Do not collect or store application passwords, password-reset tokens, or password hints in Firestore or app-owned storage.
 - Use Firebase Authentication and Firestore security rules, reinforced by server-side group-role checks, to restrict data access by group membership and administrator role.
 - Provide rate limiting and basic spam protection on public submission links.
 - Make deletion deliberate and auditable. Deleted request content should be removed according to the data-retention policy.
@@ -222,7 +222,7 @@ The document groups requests by category when there are enough requests to make 
 | --- | --- | --- |
 | `/submit/[submission-token]` | Submit a request to the link’s single group | Anyone with unlisted link |
 | `/submit/[submission-token]/thanks` | Submission confirmation | Submitter |
-| `/sign-in` | Password-free SSO sign-in | Anyone |
+| `/sign-in` | Google sign-in, email account creation, email sign-in, and password reset | Anyone |
 | `/privacy` | Privacy notice for request handling, identity, and Google Doc sharing | Anyone |
 | `/my-requests` | View linked submissions and request updates, answered status, or removal | Signed-in submitter |
 | `/board/[group-slug]` | Optional private prayer board | Member or administrator |
@@ -254,9 +254,9 @@ The document groups requests by category when there are enough requests to make 
 ## 12. Recommended first-release decisions
 
 - Anonymous guest submission is allowed through an unlisted link and does not require sign-in.
-- A named request requires SSO sign-in and displays the authenticated account profile name; this reduces impersonation.
+- A named request requires Google sign-in or a verified email account and displays the authenticated account profile name; this reduces impersonation.
 - Signed-in people can also submit anonymously to the group; administrators retain that account linkage for moderation.
-- Google SSO is available at launch; add Microsoft and Apple after their setup is complete.
+- Google sign-in and verified email/password accounts are available at launch; add Microsoft and Apple after their setup is complete.
 - Create Actualize and AVBC as the two initial groups. Generate a separate opaque submission token and separate private app link for each.
 - Never present a group-selection control to a submitter. The link determines the group, and a request belongs to that group only.
 - Every group’s approved requests are automatically published to a connected view-only Google Doc.

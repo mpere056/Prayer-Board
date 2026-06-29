@@ -38,7 +38,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ sub
   const requiresIdentity = identity === "named" || identity === "anonymous_to_group";
   const user = requiresIdentity ? await getCurrentUser() : null;
   if (requiresIdentity && !user) {
-    return NextResponse.json({ error: "Please sign in with Google before sharing this request." }, { status: 401 });
+    return NextResponse.json({ error: "Please sign in before sharing this request." }, { status: 401 });
   }
 
   const document = firebaseAdminDb().collection(`groups/${group.id}/requests`).doc();

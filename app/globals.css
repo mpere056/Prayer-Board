@@ -394,6 +394,70 @@ h1 {
   gap: 1rem;
 }
 
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--muted);
+  font-size: 0.86rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+  height: 1px;
+  flex: 1;
+  background: var(--line);
+  content: "";
+}
+
+.auth-mode-tabs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.35rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 0.25rem;
+  background: rgb(220 232 216 / 25%);
+}
+
+.auth-mode-tabs button {
+  border: 0;
+  border-radius: 999px;
+  padding: 0.55rem 0.8rem;
+  background: transparent;
+  color: var(--sage-deep);
+  font-weight: 700;
+}
+
+.auth-mode-tabs button.active {
+  background: var(--paper);
+  color: var(--ink);
+  box-shadow: 0 6px 16px rgb(32 53 43 / 9%);
+}
+
+.email-auth-form {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.email-auth-form label {
+  display: grid;
+  gap: 0.35rem;
+  font-weight: 700;
+}
+
+.email-auth-form input {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 0.7rem;
+  padding: 0.72rem 0.8rem;
+  background: white;
+  color: var(--ink);
+  font-weight: 400;
+}
+
 .notice {
   border-left: 3px solid var(--sage-deep);
   padding-left: 1rem;

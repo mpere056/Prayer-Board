@@ -16,14 +16,14 @@ export default function PrivacyPage() {
             A prayer request can include a title, request text, category, duration, and the sharing choice selected on the form. Anonymous guest submissions are not connected to a Prayer Board account.
           </p>
           <p>
-            If you sign in with Google, the app stores the minimum account details needed for sign-in and access control, such as your user ID, email when available, and display name.
+            If you sign in with Google or an email account, the app stores the minimum account details needed for sign-in and access control, such as your user ID, email when available, and display name.
           </p>
         </section>
 
         <section>
           <h2>Who can see a request</h2>
           <p>
-            New requests are pending until an administrator reviews them. Approved requests can be seen by signed-in members of that specific group in the app and may be published to that group’s connected Google Doc.
+            New requests are pending until an administrator reviews them. Approved requests can be seen by signed-in members of that specific group in the app and may be published to that group&apos;s connected Google Doc.
           </p>
           <p>
             Each group is isolated. A request submitted to one group is not shown to another group.
@@ -33,17 +33,17 @@ export default function PrivacyPage() {
         <section>
           <h2>Anonymous and named requests</h2>
           <p>
-            Anonymous guest requests do not require sign-in. Named requests require Google sign-in so the displayed name comes from the signed-in account instead of a free-text field.
+            Anonymous guest requests do not require sign-in. Named requests require Google sign-in or a verified email account so the displayed name comes from the signed-in account instead of a free-text field.
           </p>
           <p>
-            If you sign in but choose to appear anonymous to the group, members see “Anonymous,” while administrators may still see the account connection for moderation and safety.
+            If you sign in but choose to appear anonymous to the group, members see &quot;Anonymous,&quot; while administrators may still see the account connection for moderation and safety.
           </p>
         </section>
 
         <section>
           <h2>Google Docs sharing</h2>
           <p>
-            A group’s Google Doc is a generated, view-only publication of approved requests. If administrators choose “anyone with the link can view,” anyone who receives that document link can read the published requests.
+            A group&apos;s Google Doc is a generated, view-only publication of approved requests. If administrators choose &quot;anyone with the link can view,&quot; anyone who receives that document link can read the published requests.
           </p>
           <p>
             Please do not forward, copy, or screenshot requests outside the intended group without permission.

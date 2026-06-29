@@ -1,7 +1,8 @@
 "use client";
 
-import { FormEvent, useState } from "react";
-import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { FormEvent, useEffect, useState } from "react";
+import { onAuthStateChanged, type User } from "firebase/auth";
+import { createAppSession } from "@/lib/firebase/auth-client";
 import { firebaseAuth } from "@/lib/firebase/client";
 
 type IdentityChoice = "anonymous_guest" | "named" | "anonymous_to_group";
@@ -20,19 +21,68 @@ export function PrayerRequestForm({ submissionToken }: { submissionToken: string
   const [category, setCategory] = useState("other");
   const [duration, setDuration] = useState("unspecified");
   const [hasConsent, setHasConsent] = useState(false);
+  const [authReady, setAuthReady] = useState(false);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isComplete, setIsComplete] = useState(false);
+  const draftKey = `prayer-request-draft:${submissionToken}`;
+
+  useEffect(() => {
+    const savedDraft = window.sessionStorage.getItem(draftKey);
+    if (savedDraft) {
+      try {
+        const draft = JSON.parse(savedDraft) as Partial<{
+          identity: IdentityChoice;
+          title: string;
+          body: string;
+          category: string;
+          duration: string;
+          hasConsent: boolean;
+        }>;
+        if (draft.identity) setIdentity(draft.identity);
+        if (typeof draft.title === "string") setTitle(draft.title);
+        if (typeof draft.body === "string") setBody(draft.body);
+        if (typeof draft.category === "string") setCategory(draft.category);
+        if (typeof draft.duration === "string") setDuration(draft.duration);
+        if (typeof draft.hasConsent === "boolean") setHasConsent(draft.hasConsent);
+      } catch {
+        // Ignore malformed local draft data.
+      }
+    }
+
+    const unsubscribe = onAuthStateChanged(firebaseAuth(), (user) => {
+      setCurrentUser(user);
+      setAuthReady(true);
+    });
+
+    return unsubscribe;
+  }, [draftKey]);
+
+  function saveDraft() {
+    window.sessionStorage.setItem(draftKey, JSON.stringify({
+      identity,
+      title,
+      body,
+      category,
+      duration,
+      hasConsent,
+    }));
+  }
 
   async function createFirebaseSession() {
     const auth = firebaseAuth();
-    const user = auth.currentUser ?? (await signInWithPopup(auth, new GoogleAuthProvider())).user;
-    const response = await fetch("/api/auth/session", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ idToken: await user.getIdToken() }),
-    });
-    if (!response.ok) throw new Error("sign_in_failed");
+    const user = currentUser ?? auth.currentUser;
+
+    if (!authReady) throw new Error("auth_not_ready");
+    if (!user) {
+      saveDraft();
+      const returnPath = `${window.location.pathname}${window.location.search}`;
+      window.location.assign(`/sign-in?next=${encodeURIComponent(returnPath)}`);
+      throw new Error("sign_in_required");
+    }
+
+    await createAppSession(user);
   }
 
   async function submit(event: FormEvent<HTMLFormElement>) {
@@ -49,12 +99,16 @@ export function PrayerRequestForm({ submissionToken }: { submissionToken: string
       });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || "submission_failed");
+      window.sessionStorage.removeItem(draftKey);
       setIsComplete(true);
     } catch (submissionError) {
+      if (submissionError instanceof Error && submissionError.message === "sign_in_required") return;
       setError(
-        submissionError instanceof Error && submissionError.message === "sign_in_failed"
-          ? "We could not complete Google sign-in. Please try again."
-          : "We could not submit your request. Please review the form and try again.",
+        submissionError instanceof Error && submissionError.message === "auth_not_ready"
+          ? "Sign-in is still loading. Please try again in a moment."
+          : submissionError instanceof Error && submissionError.message.includes("auth/email-not-verified")
+            ? "Please verify your email address before sharing a named request."
+            : "We could not submit your request. Please review the form and try again.",
       );
     } finally {
       setIsSubmitting(false);
@@ -77,10 +131,10 @@ export function PrayerRequestForm({ submissionToken }: { submissionToken: string
       <h1>How can we pray for you?</h1>
       <div className="notice">
         <p>
-          A group administrator will review this before it is shared. Please avoid sharing another person’s private information without their permission.
+          A group administrator will review this before it is shared. Please avoid sharing another person&apos;s private information without their permission.
         </p>
         <p>
-          Approved requests may appear on this group’s private board and connected Google Doc. Read the <a href="/privacy" target="_blank">privacy notice</a>.
+          Approved requests may appear on this group&apos;s private board and connected Google Doc. Read the <a href="/privacy" target="_blank">privacy notice</a>.
         </p>
       </div>
 
@@ -92,11 +146,11 @@ export function PrayerRequestForm({ submissionToken }: { submissionToken: string
         </label>
         <label className="check-row">
           <input checked={identity === "named"} name="identity" onChange={() => setIdentity("named")} type="radio" />
-          <span><strong>Submit with my name</strong><br />Google sign-in confirms the name shown to the group.</span>
+          <span><strong>Submit with my name</strong><br />Sign in with Google or email to confirm the name shown to the group.</span>
         </label>
         <label className="check-row">
           <input checked={identity === "anonymous_to_group"} name="identity" onChange={() => setIdentity("anonymous_to_group")} type="radio" />
-          <span><strong>Sign in, appear anonymous</strong><br />Administrators can identify the submission for moderation; the group sees “Anonymous.”</span>
+          <span><strong>Sign in, appear anonymous</strong><br />Administrators can identify the submission for moderation; the group sees &quot;Anonymous.&quot;</span>
         </label>
       </fieldset>
 
@@ -144,7 +198,7 @@ export function PrayerRequestForm({ submissionToken }: { submissionToken: string
       </label>
       {error ? <p className="error" role="alert">{error}</p> : null}
       <button className="button" disabled={isSubmitting} type="submit">
-        {isSubmitting ? "Sharing…" : identity === "anonymous_guest" ? "Share request" : "Sign in and share request"}
+        {isSubmitting ? "Sharing..." : identity === "anonymous_guest" || currentUser ? "Share request" : "Sign in to continue"}
       </button>
     </form>
   );

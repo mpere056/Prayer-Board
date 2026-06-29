@@ -27,8 +27,14 @@ export async function POST(
     targetUser = await firebaseAdminAuth().getUserByEmail(normalizedEmail);
   } catch {
     return NextResponse.json(
-      { error: "That person needs to sign in once with Google before they can be added." },
+      { error: "That person needs to sign in or create an account before they can be added." },
       { status: 404 },
+    );
+  }
+  if (targetUser.providerData.some((provider) => provider.providerId === "password") && !targetUser.emailVerified) {
+    return NextResponse.json(
+      { error: "That person needs to verify their email address before they can be added." },
+      { status: 409 },
     );
   }
 

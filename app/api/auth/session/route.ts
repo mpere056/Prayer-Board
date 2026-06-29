@@ -27,6 +27,15 @@ export async function POST(request: Request) {
     step = "verify_id_token";
     const auth = firebaseAdminAuth();
     const decodedToken = await auth.verifyIdToken(idToken);
+    const signInProvider = decodedToken.firebase.sign_in_provider;
+    if (signInProvider === "password" && decodedToken.email_verified !== true) {
+      return NextResponse.json({
+        error: "Please verify your email address before signing in.",
+        step,
+        code: "auth/email-not-verified",
+      }, { status: 401 });
+    }
+
     step = "create_session_cookie";
     const sessionCookie = await auth.createSessionCookie(idToken, { expiresIn: sessionDurationMs });
     step = "upsert_user_profile";
@@ -35,6 +44,8 @@ export async function POST(request: Request) {
     await userReference.set({
       email: decodedToken.email ?? null,
       displayName: decodedToken.name ?? null,
+      emailVerified: decodedToken.email_verified ?? null,
+      signInProvider,
       updatedAt: FieldValue.serverTimestamp(),
       ...(userSnapshot.exists ? {} : { createdAt: FieldValue.serverTimestamp() }),
     }, { merge: true });
@@ -60,7 +71,7 @@ export async function POST(request: Request) {
       firebasePrivateKeyConfigured: Boolean(process.env.FIREBASE_PRIVATE_KEY),
     });
     return NextResponse.json({
-      error: "Google sign-in could not be verified.",
+      error: "Sign-in could not be verified.",
       step,
       code: details.code,
       message: details.message,
