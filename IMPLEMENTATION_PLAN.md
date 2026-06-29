@@ -50,6 +50,7 @@ Every prayer request is stored beneath exactly one group document. There is no c
 | `groups/{groupId}` | Name, app slug, opaque submission token, timezone, archival settings |
 | `groups/{groupId}/members/{userId}` | `member` or `admin` role and display metadata |
 | `groups/{groupId}/requests/{requestId}` | Prayer content, anonymity, status, lifecycle, and moderation metadata |
+| `groups/{groupId}/requestChanges/{requestId}` | Current submitter-requested update, answered status, or removal awaiting administrator review |
 | `groups/{groupId}/prayerMarks/{userId_requestId}` | One private prayer mark per member/request |
 | `groups/{groupId}/auditEvents/{eventId}` | Minimal moderation/lifecycle audit event |
 | `groups/{groupId}/private/googleDoc` | Google Doc metadata, status, and encrypted refresh token; server-only |
@@ -71,7 +72,7 @@ Every prayer request is stored beneath exactly one group document. There is no c
 
 - Unit tests: validation, status transitions, anonymity display, archival eligibility, and document rendering.
 - Integration tests: Firebase session verification, group-role checks, Firestore rules, Google Doc publication state, and private-token access.
-- Browser tests: anonymous submission, Google sign-in, named submission, moderation, publication status, and mobile flows.
+- Browser tests: anonymous submission, Google sign-in, named submission, submitter change requests, moderation, publication status, and mobile flows.
 
 ### Manual acceptance checks
 

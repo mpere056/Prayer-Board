@@ -29,6 +29,10 @@ service cloud.firestore {
         allow create, update, delete: if false;
       }
 
+      match /requestChanges/{requestId} {
+        allow read, write: if false;
+      }
+
       match /private/{documentId} {
         allow read, write: if false;
       }

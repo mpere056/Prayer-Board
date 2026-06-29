@@ -22,6 +22,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
             <nav className="site-nav" aria-label="Primary navigation">
               {user ? (
                 <>
+                  <Link href="/my-requests">My requests</Link>
                   <span className="signed-in-label">{user.displayName || user.email || "Signed in"}</span>
                   <form action="/api/auth/sign-out" method="post">
                     <button className="button button-secondary" type="submit">Sign out</button>

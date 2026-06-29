@@ -71,6 +71,7 @@ Completed in the initial Phase 5 implementation pass:
 - Administrator dashboard with pending, active, answered, and archived counts.
 - Admin request lifecycle pages for active, answered, and archived requests.
 - Server-enforced lifecycle transitions for mark answered, archive, restore, and remove.
+- Submitter-requested updates, answered status, and removal with administrator approval before publication changes.
 - Google Doc republication after visible request state changes.
 - Optional answered-prayers section in the Google Doc, controlled from settings.
 - Google Doc retry and disconnect controls.
@@ -81,7 +82,6 @@ Still deferred:
 
 - Automatic archival job and per-group archival-period settings.
 - Detailed audit-history page.
-- Editing request content after submission or approval.
 
 ## Completion checkpoint
 

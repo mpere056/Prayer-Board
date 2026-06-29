@@ -1,15 +1,16 @@
 import Link from "next/link";
 import { ShareLinkTools } from "@/components/share-link-tools";
 import { requireGroupAdmin } from "@/lib/auth";
-import { getGoogleDocConnection, getPrayerRequestStatusCounts } from "@/lib/firebase/firestore";
+import { getGoogleDocConnection, getPrayerRequestStatusCounts, listPendingRequestChanges } from "@/lib/firebase/firestore";
 import { buildAbsoluteAppUrl } from "@/lib/site-url";
 
 export default async function AdminPage({ params }: { params: Promise<{ groupSlug: string }> }) {
   const { groupSlug } = await params;
   const access = await requireGroupAdmin(groupSlug);
-  const [counts, googleDoc] = await Promise.all([
+  const [counts, googleDoc, pendingChanges] = await Promise.all([
     getPrayerRequestStatusCounts(access.group.id),
     getGoogleDocConnection(access.group.id),
+    listPendingRequestChanges(access.group.id),
   ]);
   const encodedGroupSlug = encodeURIComponent(groupSlug);
   const siteLinks = [
@@ -40,8 +41,8 @@ export default async function AdminPage({ params }: { params: Promise<{ groupSlu
         </p>
         <div className="dashboard-grid" aria-label="Request status summary">
           <div className="stat-card">
-            <span>Pending</span>
-            <strong>{counts.pending}</strong>
+            <span>Needs review</span>
+            <strong>{counts.pending + pendingChanges.length}</strong>
           </div>
           <div className="stat-card">
             <span>Active</span>
@@ -72,7 +73,7 @@ export default async function AdminPage({ params }: { params: Promise<{ groupSlu
         </section>
         <div className="admin-links">
           <Link className="button" href={`/admin/${encodeURIComponent(groupSlug)}/requests`}>
-            Review pending requests
+            Review requests{pendingChanges.length > 0 ? ` (${pendingChanges.length} changes)` : ""}
           </Link>
           <Link className="button button-secondary" href={`/admin/${encodeURIComponent(groupSlug)}/active`}>
             Manage active requests

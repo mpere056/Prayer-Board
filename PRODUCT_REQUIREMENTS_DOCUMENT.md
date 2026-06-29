@@ -45,7 +45,7 @@ Anyone who has the group’s request-submission link. They can submit anonymousl
 
 ### Authenticated submitter
 
-Anyone who signs in through an approved SSO provider. They can submit a request under their verified account identity, but do not gain board access unless they are also an invited group member.
+Anyone who signs in through an approved SSO provider. They can submit a request under their verified account identity, but do not gain board access unless they are also an invited group member. They can privately see requests linked to their account and ask an administrator to update, mark answered, or remove them.
 
 ### Google Doc reader
 
@@ -126,6 +126,8 @@ A trusted group member who can approve, edit for privacy, reject, archive, resto
 - An anonymous submission always displays as **Anonymous** to members and has no associated account identity.
 - A signed-in submitter can submit a **Named** request that displays their authenticated profile name to the group.
 - A signed-in submitter can instead submit **Anonymous to the group**; members see “Anonymous,” while administrators can see the linked account identity for moderation.
+- Signed-in submitters can see only their own linked requests across groups. Anonymous guest submissions cannot be claimed or connected to an account later.
+- A submitter-requested edit, answered status, or removal enters the group’s review queue and never changes published content until an administrator approves it.
 - Submission includes a required consent checkbox: “I have permission to share the information in this request.”
 - The request enters **Pending** status by default.
 - The confirmation page explains that an administrator will review the request before it is visible to the group.
@@ -222,6 +224,7 @@ The document groups requests by category when there are enough requests to make 
 | `/submit/[submission-token]/thanks` | Submission confirmation | Submitter |
 | `/sign-in` | Password-free SSO sign-in | Anyone |
 | `/privacy` | Privacy notice for request handling, identity, and Google Doc sharing | Anyone |
+| `/my-requests` | View linked submissions and request updates, answered status, or removal | Signed-in submitter |
 | `/board/[group-slug]` | Optional private prayer board | Member or administrator |
 | `/board/[group-slug]/answered` | Optional private answered-request view | Member or administrator |
 | `/board/[group-slug]/archive` | Optional private archive view | Member or administrator |
@@ -247,7 +250,6 @@ The document groups requests by category when there are enough requests to make 
 3. Are prayer counts strictly private to each member, or should an aggregate count be visible on a card?
 4. Should the Google Doc include an “Answered prayers and praise” section, or only active requests?
 5. How long should approved and archived requests be retained by default?
-6. Should members be able to submit updates to their own requests in a later release?
 
 ## 12. Recommended first-release decisions
 

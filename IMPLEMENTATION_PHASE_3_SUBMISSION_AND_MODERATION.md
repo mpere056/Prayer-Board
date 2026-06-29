@@ -15,6 +15,7 @@ Create the complete, moderated intake workflow. Actualize and AVBC have separate
 - Anonymous guest and authenticated named-submission paths.
 - Writing templates, validation, consent, rate limiting, and spam protection.
 - Pending queue and approve/edit/reject/remove actions.
+- Signed-in submitter history and moderated update, answered, and removal requests.
 - Request audit events and publication trigger after approved changes.
 
 ## Out of scope
@@ -39,12 +40,14 @@ Create the complete, moderated intake workflow. Actualize and AVBC have separate
 10. Build the admin pending queue with readable request context and clear actions: approve, edit then approve, reject, or remove.
 11. Require confirmation before permanent removal. Keep moderation notes administrator-only.
 12. Trigger Google Doc publication after any approved request is created, edited, or removed from publication.
-13. Test the end-to-end anonymous, named, and signed-in-anonymous workflows.
+13. Give signed-in submitters a private view of requests linked to their account and route their requested changes through administrator approval.
+14. Test the end-to-end anonymous, named, signed-in-anonymous, and submitter-change workflows.
 
 ## Form and moderation experience requirements
 
 - The anonymous path must not show a sign-in wall, email field, or password field.
 - The named path must never claim an identity until SSO returns successfully.
+- A submitter can never read or change another submitter’s request through the personal request routes.
 - Templates assist but never replace free-form writing.
 - The submission confirmation says the request is awaiting review; it does not promise a publication time.
 - The moderation queue gives administrators sufficient context to protect privacy without exposing data to members.

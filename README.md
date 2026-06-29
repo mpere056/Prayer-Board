@@ -18,6 +18,7 @@ Cost-sensitive setup notes are tracked in [COST_GUARDRAILS.md](COST_GUARDRAILS.m
 - Anonymous guest submission through a group-specific unlisted link.
 - Google sign-in for named submissions, member board access, and administration.
 - Admin moderation for pending requests, including privacy edits before approval.
+- Signed-in “My requests” history with moderated update, answered, and removal requests.
 - Admin lifecycle views for active, answered, and archived requests.
 - No-cost manual archival maintenance for due active requests; no scheduled cloud job is required.
 - Admin dashboard share tools for each group’s submission, board, and admin links.

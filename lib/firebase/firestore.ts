@@ -65,6 +65,36 @@ export type BoardPrayerRequest = {
 
 export type PrayerRequestStatusCounts = Record<PrayerRequestStatus, number>;
 
+export type RequestChangeAction = "update" | "mark_answered" | "remove";
+export type RequestChangeStatus = "pending" | "approved" | "declined";
+
+export type RequestChange = {
+  id: string;
+  requestId: string;
+  submitterUserId: string;
+  action: RequestChangeAction;
+  status: RequestChangeStatus;
+  note?: string | null;
+  proposedTitle?: string | null;
+  proposedBody?: string | null;
+  proposedCategory?: string | null;
+  proposedDuration?: string | null;
+  requestedAt?: { toMillis(): number; toDate(): Date };
+  reviewedAt?: { toMillis(): number; toDate(): Date };
+};
+
+export type UserPrayerRequest = StoredPrayerRequest & {
+  groupId: string;
+  groupName: string;
+  groupSlug: string;
+  pendingChange: RequestChange | null;
+  latestChange: RequestChange | null;
+};
+
+export type PendingRequestChange = RequestChange & {
+  request: StoredPrayerRequest;
+};
+
 export type GroupAuditEvent = {
   id: string;
   eventType: string;
@@ -75,6 +105,7 @@ export type GroupAuditEvent = {
   archivedCount?: number | null;
   publicationSucceeded?: boolean | null;
   sharingMode?: "restricted" | "anyone_with_link_viewer" | null;
+  requestedAction?: RequestChangeAction | null;
   createdAt?: { toMillis(): number; toDate(): Date };
 };
 
@@ -146,6 +177,10 @@ export function groupAuditEvents(groupId: string) {
   return firebaseAdminDb().collection(`groups/${groupId}/auditEvents`);
 }
 
+export function groupRequestChanges(groupId: string) {
+  return firebaseAdminDb().collection(`groups/${groupId}/requestChanges`);
+}
+
 export async function listPendingPrayerRequests(groupId: string): Promise<StoredPrayerRequest[]> {
   const snapshot = await firebaseAdminDb()
     .collection(`groups/${groupId}/requests`)
@@ -155,6 +190,52 @@ export async function listPendingPrayerRequests(groupId: string): Promise<Stored
   return snapshot.docs
     .map((document) => ({ id: document.id, ...document.data() }) as StoredPrayerRequest)
     .sort((a, b) => (b.submittedAt?.toMillis() ?? 0) - (a.submittedAt?.toMillis() ?? 0));
+}
+
+export async function listPrayerRequestsForUser(userId: string): Promise<UserPrayerRequest[]> {
+  const groups = await firebaseAdminDb().collection("groups").get();
+  const results = await Promise.all(groups.docs.map(async (groupDocument) => {
+    const requestSnapshot = await groupDocument.ref.collection("requests")
+      .where("submitterUserId", "==", userId)
+      .get();
+    const groupData = groupDocument.data();
+
+    return Promise.all(requestSnapshot.docs.map(async (requestDocument) => {
+      const changeDocument = await groupRequestChanges(groupDocument.id).doc(requestDocument.id).get();
+      const change = changeDocument.exists
+        ? ({ id: changeDocument.id, ...changeDocument.data() } as RequestChange)
+        : null;
+
+      return {
+        id: requestDocument.id,
+        ...requestDocument.data(),
+        groupId: groupDocument.id,
+        groupName: groupData.name,
+        groupSlug: groupData.slug,
+        pendingChange: change?.status === "pending" ? change : null,
+        latestChange: change,
+      } as UserPrayerRequest;
+    }));
+  }));
+
+  return results.flat().sort((a, b) => (b.submittedAt?.toMillis() ?? 0) - (a.submittedAt?.toMillis() ?? 0));
+}
+
+export async function listPendingRequestChanges(groupId: string): Promise<PendingRequestChange[]> {
+  const snapshot = await groupRequestChanges(groupId).where("status", "==", "pending").get();
+  const changes = await Promise.all(snapshot.docs.map(async (document) => {
+    const change = { id: document.id, ...document.data() } as RequestChange;
+    const request = await groupRequestReference(groupId, change.requestId).get();
+    if (!request.exists) return null;
+    return {
+      ...change,
+      request: { id: request.id, ...request.data() } as StoredPrayerRequest,
+    } as PendingRequestChange;
+  }));
+
+  return changes
+    .filter((change): change is PendingRequestChange => Boolean(change))
+    .sort((a, b) => (a.requestedAt?.toMillis() ?? 0) - (b.requestedAt?.toMillis() ?? 0));
 }
 
 export async function listApprovedRequestsForPublication(groupId: string): Promise<PrayerRequestForPublication[]> {

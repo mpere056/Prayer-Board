@@ -12,6 +12,9 @@ function eventLabel(event: GroupAuditEvent) {
     request_archived: "Request archived",
     request_bulk_archived_due: "Due requests archived",
     request_removed: "Request removed",
+    request_change_requested: "Submitter requested a change",
+    request_change_approved: "Submitter change approved",
+    request_change_declined: "Submitter change declined",
     member_added: "Member added",
     member_promote: "Member promoted",
     member_demote: "Member demoted",
@@ -45,6 +48,7 @@ function eventDetails(event: GroupAuditEvent) {
   if ("archivedCount" in event && typeof event.archivedCount === "number") details.push(`${event.archivedCount} archived`);
   if (event.sharingMode) details.push(event.sharingMode === "anyone_with_link_viewer" ? "Anyone with link can view" : "Restricted sharing");
   if (typeof event.publicationSucceeded === "boolean") details.push(event.publicationSucceeded ? "Publication succeeded" : "Publication failed");
+  if (event.requestedAction) details.push(`Requested action: ${event.requestedAction.replaceAll("_", " ")}`);
   if (event.actorUserId) details.push(`By ${event.actorUserId}`);
 
   return details;

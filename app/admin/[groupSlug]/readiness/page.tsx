@@ -5,6 +5,7 @@ import {
   getPrayerRequestStatusCounts,
   listApprovedRequestsDueForArchive,
   listGroupMembers,
+  listPendingRequestChanges,
 } from "@/lib/firebase/firestore";
 import { buildAbsoluteAppUrl } from "@/lib/site-url";
 
@@ -38,11 +39,12 @@ function ReadinessRow({ item }: { item: ReadinessItem }) {
 export default async function GroupReadinessPage({ params }: { params: Promise<{ groupSlug: string }> }) {
   const { groupSlug } = await params;
   const access = await requireGroupAdmin(groupSlug);
-  const [counts, googleDoc, members, dueRequests] = await Promise.all([
+  const [counts, googleDoc, members, dueRequests, pendingChanges] = await Promise.all([
     getPrayerRequestStatusCounts(access.group.id),
     getGoogleDocConnection(access.group.id),
     listGroupMembers(access.group.id),
     listApprovedRequestsDueForArchive(access.group.id),
+    listPendingRequestChanges(access.group.id),
   ]);
   const adminCount = members.filter((member) => member.role === "admin").length;
   const submissionUrl = buildAbsoluteAppUrl(`/submit/${access.group.submissionToken}`);
@@ -105,10 +107,10 @@ export default async function GroupReadinessPage({ params }: { params: Promise<{
     },
     {
       label: "Pending requests",
-      description: counts.pending === 0
-        ? "No requests are waiting for review."
-        : `${counts.pending} ${counts.pending === 1 ? "request is" : "requests are"} waiting for review.`,
-      status: counts.pending === 0 ? "ready" : "attention",
+      description: counts.pending === 0 && pendingChanges.length === 0
+        ? "No submissions or submitter changes are waiting for review."
+        : `${counts.pending} new ${counts.pending === 1 ? "request" : "requests"} and ${pendingChanges.length} requested ${pendingChanges.length === 1 ? "change" : "changes"} are waiting for review.`,
+      status: counts.pending === 0 && pendingChanges.length === 0 ? "ready" : "attention",
       href: `/admin/${encodeURIComponent(groupSlug)}/requests`,
       actionLabel: "Review",
     },

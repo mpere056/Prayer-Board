@@ -20,6 +20,7 @@ export default async function HomePage() {
           <>
             <p className="eyebrow">Signed in</p>
             <h2>Welcome back{user.displayName ? `, ${user.displayName.split(" ")[0]}` : ""}.</h2>
+            <p><Link href="/my-requests">View and manage my prayer requests</Link></p>
             {groups.length === 0 ? (
               <p className="muted">You are signed in, but you have not been added to a prayer group yet.</p>
             ) : (

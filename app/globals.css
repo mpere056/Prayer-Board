@@ -630,6 +630,18 @@ h1 {
   gap: 1rem;
 }
 
+.manage-request {
+  margin-top: 1rem;
+  border-top: 1px solid var(--line);
+  padding-top: 1rem;
+}
+
+.manage-request summary {
+  cursor: pointer;
+  color: var(--sage-deep);
+  font-weight: 700;
+}
+
 .audit-card {
   padding: 0.5rem 1.35rem;
 }
