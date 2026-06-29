@@ -90,7 +90,11 @@ export async function POST(
   });
 
   if (reviewAction === "approve" && ["approved", "answered"].includes(currentStatus)) {
-    await publishCurrentGroupPrayerRequests({ groupId: access.group.id, groupName: access.group.name });
+    await publishCurrentGroupPrayerRequests({
+      groupId: access.group.id,
+      groupName: access.group.name,
+      submissionToken: access.group.submissionToken,
+    });
   }
 
   return NextResponse.json({ ok: true });

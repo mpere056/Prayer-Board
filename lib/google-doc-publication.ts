@@ -4,6 +4,7 @@ import {
   groupGoogleDocReference,
   listRequestsForPublication,
 } from "@/lib/firebase/firestore";
+import { buildAbsoluteAppUrl } from "@/lib/site-url";
 
 type PublicationResult =
   | { published: true }
@@ -18,10 +19,12 @@ export async function publishGroupPrayerRequests({
   groupId,
   groupName,
   requests,
+  submissionToken,
 }: {
   groupId: string;
   groupName: string;
   requests: PrayerRequestForPublication[];
+  submissionToken?: string | null;
 }): Promise<PublicationResult> {
   const connection = await getGoogleDocConnection(groupId);
   if (!connection) return { published: false, reason: "no_connection" };
@@ -32,6 +35,7 @@ export async function publishGroupPrayerRequests({
       documentId: connection.documentId,
       encryptedRefreshToken: connection.encryptedRefreshToken,
       requests,
+      submissionUrl: submissionToken ? buildAbsoluteAppUrl(`/submit/${submissionToken}`) : null,
     });
     await groupGoogleDocReference(groupId).update({
       lastPublishedAt: new Date().toISOString(),
@@ -51,13 +55,15 @@ export async function publishGroupPrayerRequests({
 export async function publishCurrentGroupPrayerRequests({
   groupId,
   groupName,
+  submissionToken,
 }: {
   groupId: string;
   groupName: string;
+  submissionToken?: string | null;
 }): Promise<PublicationResult> {
   const connection = await getGoogleDocConnection(groupId);
   if (!connection) return { published: false, reason: "no_connection" };
 
   const requests = await listRequestsForPublication(groupId, connection.includeAnsweredSection);
-  return publishGroupPrayerRequests({ groupId, groupName, requests });
+  return publishGroupPrayerRequests({ groupId, groupName, requests, submissionToken });
 }

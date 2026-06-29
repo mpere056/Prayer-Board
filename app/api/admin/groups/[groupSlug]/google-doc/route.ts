@@ -45,6 +45,7 @@ export async function POST(
   const publication = await publishCurrentGroupPrayerRequests({
     groupId: access.group.id,
     groupName: access.group.name,
+    submissionToken: access.group.submissionToken,
   });
 
   await groupAuditEvents(access.group.id).add({

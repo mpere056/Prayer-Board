@@ -4,6 +4,7 @@ import { encryptSecret } from "@/lib/crypto";
 import { findGroupAccess, getCurrentUser } from "@/lib/auth";
 import { createGoogleDocsOAuthClient, createPrayerDocument, type GoogleDocSharingMode } from "@/lib/google-docs";
 import { groupAuditEvents, saveGoogleDocConnection } from "@/lib/firebase/firestore";
+import { buildAbsoluteAppUrl } from "@/lib/site-url";
 
 type ConnectionState = {
   state: string;
@@ -59,6 +60,7 @@ export async function GET(request: Request) {
       groupName: access.group.name,
       accessToken: tokens.access_token,
       sharingMode: connectionState.sharingMode,
+      submissionUrl: buildAbsoluteAppUrl(`/submit/${access.group.submissionToken}`),
     });
     await saveGoogleDocConnection(access.group.id, {
       documentId: document.documentId,

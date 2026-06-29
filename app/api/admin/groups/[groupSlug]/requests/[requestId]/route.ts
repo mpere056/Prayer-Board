@@ -113,7 +113,11 @@ export async function POST(
   });
 
   if (shouldRepublish(currentStatus, nextStatus)) {
-    await publishCurrentGroupPrayerRequests({ groupId: access.group.id, groupName: access.group.name });
+    await publishCurrentGroupPrayerRequests({
+      groupId: access.group.id,
+      groupName: access.group.name,
+      submissionToken: access.group.submissionToken,
+    });
   }
 
   return NextResponse.json({ ok: true });

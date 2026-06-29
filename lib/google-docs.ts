@@ -1,5 +1,8 @@
 import { google } from "googleapis";
 import { decryptSecret } from "@/lib/crypto";
+import { renderPrayerDocument, type PrayerRequestForPublication } from "@/lib/google-doc-render";
+
+export { renderPrayerDocument, type PrayerRequestForPublication } from "@/lib/google-doc-render";
 
 export const GOOGLE_DOCS_SCOPES = [
   "https://www.googleapis.com/auth/documents",
@@ -7,16 +10,6 @@ export const GOOGLE_DOCS_SCOPES = [
 ];
 
 export type GoogleDocSharingMode = "restricted" | "anyone_with_link_viewer";
-
-export type PrayerRequestForPublication = {
-  title: string | null;
-  body: string;
-  category: string | null;
-  displayName: string | null;
-  submittedAt: string;
-  duration: string | null;
-  status: "approved" | "answered";
-};
 
 function requiredEnvironmentValue(name: "GOOGLE_DOCS_CLIENT_ID" | "GOOGLE_DOCS_CLIENT_SECRET") {
   const value = process.env[name]?.trim();
@@ -54,65 +47,16 @@ export function createGoogleDocsAuthorizationUrl(state: string) {
   });
 }
 
-export function renderPrayerDocument(groupName: string, requests: PrayerRequestForPublication[]) {
-  const updatedAt = new Intl.DateTimeFormat("en", {
-    dateStyle: "long",
-    timeStyle: "short",
-  }).format(new Date());
-  const header = [
-    `${groupName} Prayer Requests`,
-    "",
-    "Please hold these requests in prayer. Please do not forward or copy requests outside this group without permission.",
-    `Last updated: ${updatedAt}`,
-    "",
-  ];
-
-  const activeRequests = requests.filter((request) => request.status === "approved");
-  const answeredRequests = requests.filter((request) => request.status === "answered");
-
-  if (activeRequests.length === 0 && answeredRequests.length === 0) {
-    return [...header, "There are no active prayer requests at this time."].join("\n");
-  }
-
-  const renderEntries = (sectionRequests: PrayerRequestForPublication[]) => sectionRequests.flatMap((request, index) => {
-    const category = request.category ? `[${request.category}] ` : "";
-    const title = request.title?.trim() || "Prayer request";
-    const submittedAt = new Intl.DateTimeFormat("en", { month: "short", day: "numeric" }).format(
-      new Date(request.submittedAt),
-    );
-    const details = [request.displayName || "Anonymous", submittedAt, request.duration]
-      .filter(Boolean)
-      .join(" · ");
-
-    return [
-      `${index + 1}. ${category}${title}`,
-      request.body,
-      details,
-      "",
-    ];
-  });
-
-  const sections = [
-    "Active Requests",
-    "",
-    ...(activeRequests.length === 0 ? ["No active requests right now.", ""] : renderEntries(activeRequests)),
-  ];
-
-  if (answeredRequests.length > 0) {
-    sections.push("Answered Requests", "", ...renderEntries(answeredRequests));
-  }
-
-  return [...header, ...sections].join("\n");
-}
-
 export async function createPrayerDocument({
   groupName,
   accessToken,
   sharingMode,
+  submissionUrl,
 }: {
   groupName: string;
   accessToken: string;
   sharingMode: GoogleDocSharingMode;
+  submissionUrl?: string | null;
 }) {
   const auth = createGoogleDocsOAuthClient();
   auth.setCredentials({ access_token: accessToken });
@@ -135,7 +79,7 @@ export async function createPrayerDocument({
         {
           insertText: {
             endOfSegmentLocation: {},
-            text: renderPrayerDocument(groupName, []),
+            text: renderPrayerDocument(groupName, [], { submissionUrl }),
           },
         },
       ],
@@ -164,11 +108,13 @@ export async function publishPrayerDocument({
   documentId,
   encryptedRefreshToken,
   requests,
+  submissionUrl,
 }: {
   groupName: string;
   documentId: string;
   encryptedRefreshToken: string;
   requests: PrayerRequestForPublication[];
+  submissionUrl?: string | null;
 }) {
   const auth = createGoogleDocsOAuthClient();
   auth.setCredentials({ refresh_token: decryptSecret(encryptedRefreshToken) });
@@ -180,7 +126,7 @@ export async function publishPrayerDocument({
     throw new Error("Google returned an unexpected document structure.");
   }
 
-  const text = renderPrayerDocument(groupName, requests);
+  const text = renderPrayerDocument(groupName, requests, { submissionUrl });
   const updateRequests = [
     ...(endIndex > 2
       ? [

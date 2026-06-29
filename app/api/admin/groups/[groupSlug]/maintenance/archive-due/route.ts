@@ -47,7 +47,11 @@ export async function POST(
     createdAt: FieldValue.serverTimestamp(),
   });
 
-  await publishCurrentGroupPrayerRequests({ groupId: access.group.id, groupName: access.group.name });
+  await publishCurrentGroupPrayerRequests({
+    groupId: access.group.id,
+    groupName: access.group.name,
+    submissionToken: access.group.submissionToken,
+  });
 
   return NextResponse.json({ ok: true, archivedCount: dueRequests.length });
 }
