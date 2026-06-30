@@ -1,6 +1,11 @@
 import { FieldValue } from "firebase-admin/firestore";
 import { firebaseAdminDb } from "@/lib/firebase/admin";
 import type { PrayerRequestForPublication } from "@/lib/google-docs";
+import {
+  DEFAULT_ARCHIVE_POLICY,
+  isRequestDueForArchive,
+  type ArchivePolicy,
+} from "@/lib/archive-policy";
 
 export type GroupRole = "member" | "admin";
 
@@ -9,6 +14,8 @@ export type PrayerGroup = {
   name: string;
   slug: string;
   submissionToken: string;
+  defaultArchiveAfterDays: number;
+  exemptOngoingFromArchive: boolean;
 };
 
 export type GroupMembership = {
@@ -109,17 +116,23 @@ export type GroupAuditEvent = {
   createdAt?: { toMillis(): number; toDate(): Date };
 };
 
-export async function findGroupBySlug(slug: string): Promise<PrayerGroup | null> {
-  const snapshot = await firebaseAdminDb().collection("groups").where("slug", "==", slug).limit(1).get();
-  const document = snapshot.docs[0];
-  if (!document) return null;
+function prayerGroupFromDocument(document: { id: string; data(): FirebaseFirestore.DocumentData }): PrayerGroup {
   const data = document.data();
   return {
     id: document.id,
     name: data.name,
     slug: data.slug,
     submissionToken: data.submissionToken,
+    defaultArchiveAfterDays: data.defaultArchiveAfterDays ?? DEFAULT_ARCHIVE_POLICY.defaultArchiveAfterDays,
+    exemptOngoingFromArchive: data.exemptOngoingFromArchive ?? DEFAULT_ARCHIVE_POLICY.exemptOngoingFromArchive,
   };
+}
+
+export async function findGroupBySlug(slug: string): Promise<PrayerGroup | null> {
+  const snapshot = await firebaseAdminDb().collection("groups").where("slug", "==", slug).limit(1).get();
+  const document = snapshot.docs[0];
+  if (!document) return null;
+  return prayerGroupFromDocument(document);
 }
 
 export async function findGroupBySubmissionToken(submissionToken: string): Promise<PrayerGroup | null> {
@@ -130,13 +143,7 @@ export async function findGroupBySubmissionToken(submissionToken: string): Promi
     .get();
   const document = snapshot.docs[0];
   if (!document) return null;
-  const data = document.data();
-  return {
-    id: document.id,
-    name: data.name,
-    slug: data.slug,
-    submissionToken: data.submissionToken,
-  };
+  return prayerGroupFromDocument(document);
 }
 
 export async function listGroupsForUser(userId: string): Promise<Array<PrayerGroup & { role: GroupRole }>> {
@@ -146,14 +153,7 @@ export async function listGroupsForUser(userId: string): Promise<Array<PrayerGro
     const role = membership.data()?.role;
     if (role !== "member" && role !== "admin") return null;
 
-    const data = document.data();
-    return {
-      id: document.id,
-      name: data.name,
-      slug: data.slug,
-      submissionToken: data.submissionToken,
-      role,
-    };
+    return { ...prayerGroupFromDocument(document), role };
   }));
 
   return groups
@@ -305,30 +305,27 @@ export async function listPrayerRequestsByStatus(
     .sort((a, b) => (b.submittedAt?.toMillis() ?? 0) - (a.submittedAt?.toMillis() ?? 0));
 }
 
-function archiveDueAt(request: StoredPrayerRequest) {
-  if (request.status !== "approved" || request.duration === "ongoing") return null;
-
-  const baseTime = request.approvedAt?.toMillis() ?? request.submittedAt?.toMillis();
-  if (!baseTime) return null;
-
-  const days =
-    request.duration === "this_week"
-      ? 7
-      : 30;
-
-  return baseTime + days * 24 * 60 * 60 * 1000;
+export function archivePolicyForGroup(group: PrayerGroup): ArchivePolicy {
+  return {
+    defaultArchiveAfterDays: group.defaultArchiveAfterDays,
+    exemptOngoingFromArchive: group.exemptOngoingFromArchive,
+  };
 }
 
-export function isApprovedRequestDueForArchive(request: StoredPrayerRequest, now = Date.now()) {
-  const dueAt = archiveDueAt(request);
-  return typeof dueAt === "number" && dueAt <= now;
+export function isApprovedRequestDueForArchive(
+  request: StoredPrayerRequest,
+  policy: ArchivePolicy = DEFAULT_ARCHIVE_POLICY,
+  now = Date.now(),
+) {
+  return isRequestDueForArchive(request, policy, now);
 }
 
-export async function listApprovedRequestsDueForArchive(groupId: string): Promise<StoredPrayerRequest[]> {
-  const requests = await listPrayerRequestsByStatus(groupId, "approved");
+export async function listApprovedRequestsDueForArchive(group: PrayerGroup): Promise<StoredPrayerRequest[]> {
+  const requests = await listPrayerRequestsByStatus(group.id, "approved");
   const now = Date.now();
+  const policy = archivePolicyForGroup(group);
 
-  return requests.filter((request) => isApprovedRequestDueForArchive(request, now));
+  return requests.filter((request) => isApprovedRequestDueForArchive(request, policy, now));
 }
 
 export async function getPrayerRequestStatusCounts(groupId: string): Promise<PrayerRequestStatusCounts> {

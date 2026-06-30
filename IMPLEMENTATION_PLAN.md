@@ -106,7 +106,6 @@ Every prayer request is stored beneath exactly one group document. There is no c
 - Additional SSO providers.
 - Email verification email copy and deliverability.
 - Weekly opt-in prayer digest.
-- Submitter updates to existing requests.
 - Administrator-approved encouragement messages.
 - Aggregate prayer counts, with group controls.
 - Multiple groups under an organization.

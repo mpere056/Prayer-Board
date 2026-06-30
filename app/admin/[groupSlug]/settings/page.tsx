@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { GoogleDocConnect } from "@/components/google-doc-connect";
 import { GoogleDocSettingsForm } from "@/components/google-doc-settings-form";
+import { RetentionSettingsForm } from "@/components/retention-settings-form";
 import { requireGroupAdmin } from "@/lib/auth";
 import { getGoogleDocConnection } from "@/lib/firebase/firestore";
 
@@ -31,7 +32,8 @@ export default async function GroupSettingsPage({
     <main className="page-center">
       <section className="card route-card">
         <p className="eyebrow">{access.group.name} · administrator</p>
-        <h1>Google Doc publishing</h1>
+        <h1>Group settings</h1>
+        <h2>Google Doc publishing</h2>
         {message ? <p className={query["google-doc"] === "connected" ? "success" : "error"}>{message}</p> : null}
         {connection ? (
           <div className="stack">
@@ -66,6 +68,17 @@ export default async function GroupSettingsPage({
             <GoogleDocConnect groupSlug={groupSlug} />
           </>
         )}
+        <section className="admin-section" aria-labelledby="retention-heading">
+          <h2 id="retention-heading">Request retention</h2>
+          <p className="muted">
+            Set when active requests appear as due for manual archive maintenance. Nothing is archived until an administrator confirms it.
+          </p>
+          <RetentionSettingsForm
+            groupSlug={groupSlug}
+            initialArchiveDays={access.group.defaultArchiveAfterDays}
+            initialExemptOngoing={access.group.exemptOngoingFromArchive}
+          />
+        </section>
         <p>
           <Link href={`/admin/${encodeURIComponent(groupSlug)}`}>Back to administration</Link>
         </p>

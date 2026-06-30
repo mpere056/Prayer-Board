@@ -2,7 +2,7 @@ import Link from "next/link";
 import { ArchiveDueRequestsButton } from "@/components/archive-due-requests-button";
 import { RequestLifecycleActions } from "@/components/request-lifecycle-actions";
 import { requireGroupAdmin } from "@/lib/auth";
-import { isApprovedRequestDueForArchive, listPrayerRequestsByStatus } from "@/lib/firebase/firestore";
+import { archivePolicyForGroup, isApprovedRequestDueForArchive, listPrayerRequestsByStatus } from "@/lib/firebase/firestore";
 
 function submittedLabel(value: { toDate(): Date } | undefined) {
   return value
@@ -14,7 +14,8 @@ export default async function ActiveRequestsPage({ params }: { params: Promise<{
   const { groupSlug } = await params;
   const access = await requireGroupAdmin(groupSlug);
   const requests = await listPrayerRequestsByStatus(access.group.id, "approved");
-  const dueRequests = requests.filter((request) => isApprovedRequestDueForArchive(request));
+  const archivePolicy = archivePolicyForGroup(access.group);
+  const dueRequests = requests.filter((request) => isApprovedRequestDueForArchive(request, archivePolicy));
 
   return (
     <main className="admin-page">
@@ -37,7 +38,7 @@ export default async function ActiveRequestsPage({ params }: { params: Promise<{
               <div>
                 <h2>{dueRequests.length} active request{dueRequests.length === 1 ? " is" : "s are"} due for archive</h2>
                 <p className="muted">
-                  “This week” requests are due after 7 days. “This month” and unspecified requests are due after 30 days. Ongoing requests are not bulk-archived.
+                  “This week” requests are due after 7 days. Other requests use this group’s {archivePolicy.defaultArchiveAfterDays}-day policy. {archivePolicy.exemptOngoingFromArchive ? "Ongoing requests are exempt." : "Ongoing requests use the group policy."}
                 </p>
               </div>
               <ArchiveDueRequestsButton dueCount={dueRequests.length} groupSlug={groupSlug} />
@@ -45,7 +46,7 @@ export default async function ActiveRequestsPage({ params }: { params: Promise<{
           ) : null}
           <div className="request-list">
             {requests.map((request) => {
-              const isDue = isApprovedRequestDueForArchive(request);
+              const isDue = isApprovedRequestDueForArchive(request, archivePolicy);
 
               return (
                 <article className={isDue ? "card moderation-card due-card" : "card moderation-card"} key={request.id}>

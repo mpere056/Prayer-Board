@@ -21,6 +21,7 @@ Cost-sensitive setup notes are tracked in [COST_GUARDRAILS.md](COST_GUARDRAILS.m
 - Signed-in “My requests” history with moderated update, answered, and removal requests.
 - Admin lifecycle views for active, answered, and archived requests.
 - No-cost manual archival maintenance for due active requests; no scheduled cloud job is required.
+- Per-group retention settings for archive timing and ongoing-request exemptions.
 - Admin dashboard share tools for each group’s submission, board, and admin links.
 - Protected per-group launch-readiness checklist for setup, publishing, members, pending review, and maintenance.
 - Protected per-group admin quick-start guide with sharing guidance and suggested messages.

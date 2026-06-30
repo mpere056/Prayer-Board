@@ -22,7 +22,7 @@ export async function POST(
     return NextResponse.json({ error: "Administrator access required." }, { status: 403 });
   }
 
-  const dueRequests = await listApprovedRequestsDueForArchive(access.group.id);
+  const dueRequests = await listApprovedRequestsDueForArchive(access.group);
   if (dueRequests.length === 0) {
     return NextResponse.json({ ok: true, archivedCount: 0 });
   }

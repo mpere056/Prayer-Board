@@ -28,6 +28,8 @@ for (const group of [
   await reference.set({
     ...group,
     submissionToken,
+    defaultArchiveAfterDays: data?.defaultArchiveAfterDays ?? 30,
+    exemptOngoingFromArchive: data?.exemptOngoingFromArchive ?? true,
     createdAt: data?.createdAt ?? FieldValue.serverTimestamp(),
     updatedAt: FieldValue.serverTimestamp(),
   }, { merge: true });

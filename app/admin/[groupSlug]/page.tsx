@@ -85,7 +85,7 @@ export default async function AdminPage({ params }: { params: Promise<{ groupSlu
             Archive
           </Link>
           <Link className="button button-secondary" href={`/admin/${encodeURIComponent(groupSlug)}/settings`}>
-            Google Doc settings
+            Group settings
           </Link>
           <Link className="button button-secondary" href={`/admin/${encodeURIComponent(groupSlug)}/readiness`}>
             Launch readiness

@@ -7,6 +7,7 @@ import {
   transitionFor,
   type PrayerRequestStatus,
 } from "../lib/request-workflow.ts";
+import { DEFAULT_ARCHIVE_POLICY, isRequestDueForArchive } from "../lib/archive-policy.ts";
 
 test("only valid lifecycle transitions are accepted", () => {
   assert.deepEqual(transitionFor("approve", "pending"), { nextStatus: "approved" });
@@ -42,4 +43,21 @@ test("removed and rejected requests cannot receive updates", () => {
   assert.equal(canSubmitChange("remove", "pending"), true);
   assert.equal(canApproveChange("remove", "approved"), true);
   assert.equal(canApproveChange("remove", "removed"), false);
+});
+
+test("archive eligibility follows request duration and group retention policy", () => {
+  const day = 24 * 60 * 60 * 1000;
+  const approvedAt = { toMillis: () => 100 * day };
+  const afterEightDays = 108 * day;
+  const afterThirtyOneDays = 131 * day;
+
+  assert.equal(isRequestDueForArchive({ status: "approved", duration: "this_week", approvedAt }, DEFAULT_ARCHIVE_POLICY, afterEightDays), true);
+  assert.equal(isRequestDueForArchive({ status: "approved", duration: "unspecified", approvedAt }, DEFAULT_ARCHIVE_POLICY, afterEightDays), false);
+  assert.equal(isRequestDueForArchive({ status: "approved", duration: "unspecified", approvedAt }, DEFAULT_ARCHIVE_POLICY, afterThirtyOneDays), true);
+  assert.equal(isRequestDueForArchive({ status: "approved", duration: "ongoing", approvedAt }, DEFAULT_ARCHIVE_POLICY, afterThirtyOneDays), false);
+  assert.equal(isRequestDueForArchive(
+    { status: "approved", duration: "ongoing", approvedAt },
+    { defaultArchiveAfterDays: 30, exemptOngoingFromArchive: false },
+    afterThirtyOneDays,
+  ), true);
 });

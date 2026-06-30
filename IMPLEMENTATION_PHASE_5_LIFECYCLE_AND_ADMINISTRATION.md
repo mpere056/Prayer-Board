@@ -77,11 +77,13 @@ Completed in the initial Phase 5 implementation pass:
 - Google Doc retry and disconnect controls.
 - Private member board pages for answered requests and archive.
 - Member management for adding existing Firebase Auth users by email, promoting, demoting, removing access, and protecting the final administrator.
+- Per-group retention settings for the default archive period and ongoing-request exemption.
+- Manual, no-cost bulk archival for requests that are due under the group policy.
+- Detailed, administrator-only audit history.
 
 Still deferred:
 
-- Automatic archival job and per-group archival-period settings.
-- Detailed audit-history page.
+- Fully automatic scheduled archival. The launch version deliberately uses an administrator-confirmed maintenance action to avoid paid scheduled infrastructure.
 
 ## Completion checkpoint
 

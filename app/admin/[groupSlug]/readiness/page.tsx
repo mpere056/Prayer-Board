@@ -43,7 +43,7 @@ export default async function GroupReadinessPage({ params }: { params: Promise<{
     getPrayerRequestStatusCounts(access.group.id),
     getGoogleDocConnection(access.group.id),
     listGroupMembers(access.group.id),
-    listApprovedRequestsDueForArchive(access.group.id),
+    listApprovedRequestsDueForArchive(access.group),
     listPendingRequestChanges(access.group.id),
   ]);
   const adminCount = members.filter((member) => member.role === "admin").length;

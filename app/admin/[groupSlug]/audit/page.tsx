@@ -24,6 +24,7 @@ function eventLabel(event: GroupAuditEvent) {
     google_doc_disconnected: "Google Doc disconnected",
     google_doc_retry: "Google Doc publication retried",
     google_doc_settings_updated: "Google Doc settings updated",
+    group_retention_settings_updated: "Retention settings updated",
   };
 
   return labels[event.eventType] ?? event.eventType.replaceAll("_", " ");
