@@ -7,6 +7,7 @@ import {
   registerWithEmail,
   sendPasswordReset,
   signInWithEmailAndCreateSession,
+  signInWithFacebookAndCreateSession,
   signInWithGoogleAndCreateSession,
 } from "@/lib/firebase/auth-client";
 
@@ -22,7 +23,12 @@ function friendlyAuthMessage(code: string | null, fallback: string) {
   }
   if (code === "auth/weak-password") return "Please choose a password with at least 6 characters.";
   if (code === "auth/invalid-email") return "Please enter a valid email address.";
-  if (code === "auth/popup-closed-by-user") return "The Google sign-in window was closed before sign-in finished.";
+  if (code === "auth/popup-closed-by-user") return "The sign-in window was closed before sign-in finished.";
+  if (code === "auth/popup-blocked") return "Your browser blocked the sign-in window. Allow pop-ups for Prayer Board and try again.";
+  if (code === "auth/account-exists-with-different-credential") {
+    return "An account already uses that email with another sign-in method. Use the method you previously used so you keep the same Prayer Board account.";
+  }
+  if (code === "auth/operation-not-allowed") return "That sign-in method is not currently available.";
   return fallback;
 }
 
@@ -41,7 +47,7 @@ function SignInShell() {
         <p className="eyebrow">Welcome</p>
         <h1 id="sign-in-heading">Sign in simply.</h1>
         <p className="muted">
-          Use Google or an email account to view a private board, administer a group, or submit a request in your name.
+          Use Google, Facebook, or an email account to view a private board, administer a group, or submit a request in your name.
         </p>
         <div className="stack">
           <button className="button" type="button" disabled>
@@ -85,6 +91,27 @@ function SignInContent() {
         body: JSON.stringify({ area: "google_sign_in", ...details }),
       }).catch(() => undefined);
       setError(friendlyAuthMessage(details.code, "We could not start Google sign-in. Please try again."));
+      setIsLoading(false);
+    }
+  }
+
+  async function signInWithFacebook() {
+    setIsLoading(true);
+    setMessage(null);
+    setError(null);
+
+    try {
+      await signInWithFacebookAndCreateSession();
+      completeSignIn();
+    } catch (caught) {
+      const details = authErrorDetail(caught);
+      console.error("Facebook sign-in failed", details);
+      void fetch("/api/client-errors", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ area: "facebook_sign_in", ...details }),
+      }).catch(() => undefined);
+      setError(friendlyAuthMessage(details.code, "We could not start Facebook sign-in. Please try again."));
       setIsLoading(false);
     }
   }
@@ -147,12 +174,15 @@ function SignInContent() {
         <p className="eyebrow">Welcome</p>
         <h1 id="sign-in-heading">Sign in simply.</h1>
         <p className="muted">
-          Use Google, or create an email account. Prayer Board uses Firebase Auth, so passwords are not stored in the app database.
+          Use Google, Facebook, or create an email account. Prayer Board uses Firebase Auth, so passwords are not stored in the app database.
         </p>
 
         <div className="stack">
           <button className="button" type="button" disabled={isLoading} onClick={signInWithGoogle}>
             {isLoading ? "Working..." : "Continue with Google"}
+          </button>
+          <button className="button button-secondary" type="button" disabled={isLoading} onClick={signInWithFacebook}>
+            {isLoading ? "Working..." : "Continue with Facebook"}
           </button>
 
           <div className="auth-divider" role="presentation">

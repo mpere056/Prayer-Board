@@ -51,7 +51,7 @@ export default async function HomePage() {
             <p className="eyebrow">For group leaders</p>
             <h2>Private by design. Simple to share.</h2>
             <p>
-              Anonymous requests need no account. Named requests, group access, and administration use Google or a verified email account.
+              Anonymous requests need no account. Named requests, group access, and administration use Google, Facebook, or a verified email account.
             </p>
             <Link className="button" href="/sign-in">
               Sign in

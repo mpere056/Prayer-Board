@@ -21,7 +21,7 @@ Prayer Board provides one respectful workflow:
 ## 3. Product goals
 
 - Make anonymous submission take less than two minutes, without requiring sign-in or asking the submitter to choose a group.
-- Make member and administrator sign-in feel familiar, offering Google sign-in and verified email accounts.
+- Make member and administrator sign-in feel familiar, offering Google, Facebook, and verified email accounts.
 - Protect privacy through group access, clear sharing choices, and administrator review.
 - Publish an uncluttered, prayer-focused Google Doc that groups can open without app sign-in.
 - Make moderation straightforward for a small group of trusted administrators.
@@ -45,7 +45,7 @@ Anyone who has the group’s request-submission link. They can submit anonymousl
 
 ### Authenticated submitter
 
-Anyone who signs in through Google or a verified email account. They can submit a request under their verified account identity, but do not gain board access unless they are also an invited group member. They can privately see requests linked to their account and ask an administrator to update, mark answered, or remove them.
+Anyone who signs in through Google, Facebook, or a verified email account. They can submit a request under their authenticated account identity, but do not gain board access unless they are also an invited group member. They can privately see requests linked to their account and ask an administrator to update, mark answered, or remove them.
 
 ### Google Doc reader
 
@@ -65,7 +65,7 @@ A trusted group member who can approve, edit for privacy, reject, archive, resto
 
 1. The submitter opens an unlisted group-specific link.
 2. They choose **Submit anonymously** or **Sign in to submit with my name**.
-3. An anonymous submitter writes a request without creating an account. A named submitter signs in with Google or a verified email account, then writes their request.
+3. An anonymous submitter writes a request without creating an account. A named submitter signs in with Google, Facebook, or a verified email account, then writes their request.
 4. They choose an optional template and category, and confirm that they have permission to share the information.
 5. They submit the request and see a kind confirmation that it will be reviewed.
 
@@ -78,7 +78,7 @@ A trusted group member who can approve, edit for privacy, reject, archive, resto
 
 ### Optional app prayer board
 
-1. A member signs in with Google or a verified email account and opens their group’s board.
+1. A member signs in with Google, Facebook, or a verified email account and opens their group’s board.
 2. They see approved, active requests in a clear card-based list.
 3. They filter or search if useful.
 4. They open or read a request and select **I prayed**.
@@ -107,8 +107,8 @@ A trusted group member who can approve, edit for privacy, reject, archive, resto
 
 ### 7.2 Authentication and identity
 
-- The application supports Google sign-in and verified email/password accounts through Firebase Authentication.
-- Google is required for the first release. Email/password is also allowed for people who prefer not to use Google. Microsoft and Apple may be enabled when provider setup and support needs are ready.
+- The application supports Google, Facebook, and verified email/password accounts through Firebase Authentication.
+- Google and Facebook are available alongside email/password for people who prefer different sign-in methods. Microsoft and Apple may be enabled when provider setup and support needs are ready.
 - Firebase Authentication is required to view a prayer board, use administrator functions, or submit a request that displays a name.
 - An authenticated account may submit to the group behind its unlisted link without becoming a board member; membership is a separate authorization decision.
 - For named submissions, the displayed name is the authenticated account’s profile name or a name previously set by that signed-in user. It is never an arbitrary unauthenticated text field.
@@ -222,7 +222,7 @@ The document groups requests by category when there are enough requests to make 
 | --- | --- | --- |
 | `/submit/[submission-token]` | Submit a request to the link’s single group | Anyone with unlisted link |
 | `/submit/[submission-token]/thanks` | Submission confirmation | Submitter |
-| `/sign-in` | Google sign-in, email account creation, email sign-in, and password reset | Anyone |
+| `/sign-in` | Google and Facebook sign-in, email account creation, email sign-in, and password reset | Anyone |
 | `/privacy` | Privacy notice for request handling, identity, and Google Doc sharing | Anyone |
 | `/my-requests` | View linked submissions and request updates, answered status, or removal | Signed-in submitter |
 | `/board/[group-slug]` | Optional private prayer board | Member or administrator |
@@ -245,7 +245,7 @@ The document groups requests by category when there are enough requests to make 
 
 ## 11. Open decisions before implementation
 
-1. Which SSO providers beyond Google should the first release offer: Microsoft, Apple, or both?
+1. Which additional providers beyond Google and Facebook should follow: Microsoft, Apple, or both?
 2. Should administrators see the identity behind an anonymous-to-group request when a signed-in person submits it?
 3. Are prayer counts strictly private to each member, or should an aggregate count be visible on a card?
 4. Should the Google Doc include an “Answered prayers and praise” section, or only active requests?
@@ -254,9 +254,9 @@ The document groups requests by category when there are enough requests to make 
 ## 12. Recommended first-release decisions
 
 - Anonymous guest submission is allowed through an unlisted link and does not require sign-in.
-- A named request requires Google sign-in or a verified email account and displays the authenticated account profile name; this reduces impersonation.
+- A named request requires Google, Facebook, or a verified email account and displays the authenticated account profile name; this reduces impersonation.
 - Signed-in people can also submit anonymously to the group; administrators retain that account linkage for moderation.
-- Google sign-in and verified email/password accounts are available at launch; add Microsoft and Apple after their setup is complete.
+- Google and Facebook sign-in plus verified email/password accounts are available; add Microsoft and Apple after their setup is complete.
 - Create Actualize and AVBC as the two initial groups. Generate a separate opaque submission token and separate private app link for each.
 - Never present a group-selection control to a submitter. The link determines the group, and a request belongs to that group only.
 - Every group’s approved requests are automatically published to a connected view-only Google Doc.

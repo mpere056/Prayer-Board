@@ -5,7 +5,7 @@ Prayer Board collects prayer requests through a simple app, gives administrators
 ## Architecture
 
 - **Vercel + Next.js:** the app, protected server routes, and Google Docs publishing.
-- **Firebase Authentication:** Google sign-in plus verified email/password accounts for named submission, member access, and administration.
+- **Firebase Authentication:** Google and Facebook sign-in plus verified email/password accounts for named submission, member access, and administration.
 - **Cloud Firestore:** group-scoped requests, membership, moderation, lifecycle state, prayer marks, and publishing configuration.
 - **Google Docs:** a generated, view-only reading surface for each group.
 
@@ -16,7 +16,7 @@ Cost-sensitive setup notes are tracked in [COST_GUARDRAILS.md](COST_GUARDRAILS.m
 ## Implemented app surfaces
 
 - Anonymous guest submission through a group-specific unlisted link.
-- Google sign-in and verified email/password accounts for named submissions, member board access, and administration.
+- Google and Facebook sign-in plus verified email/password accounts for named submissions, member board access, and administration.
 - Admin moderation for pending requests, including privacy edits before approval.
 - Signed-in “My requests” history with moderated update, answered, and removal requests.
 - Admin lifecycle views for active, answered, and archived requests.
@@ -35,13 +35,13 @@ Cost-sensitive setup notes are tracked in [COST_GUARDRAILS.md](COST_GUARDRAILS.m
 ## Local setup
 
 1. Create a Firebase project owned by the group/organization rather than one individual.
-2. Create a Firebase Web App and enable **Google** and **Email/Password** under **Authentication -> Sign-in method**.
+2. Create a Firebase Web App and enable **Google**, **Facebook**, and **Email/Password** under **Authentication -> Sign-in method**. Facebook also requires a Meta app whose valid OAuth redirect URI is `https://<firebase-project-id>.firebaseapp.com/__/auth/handler`.
 3. Add `localhost` and the eventual Vercel domain to Firebase Authentication’s authorized domains.
 4. Create a Firebase service account for server-side Vercel use. Copy its project ID, client email, and private key to the server-only environment values in `.env.local`.
 5. Copy `.env.example` to `.env.local` and fill in the Firebase web app, Firebase Admin, Google Docs OAuth, and encryption-key values.
 6. Deploy `firestore.rules` and `firestore.indexes.json` with the Firebase CLI. The app uses Firebase Admin only from trusted Vercel server routes; the rules deny direct client writes to sensitive data.
 7. Create a Google OAuth client for Google Docs publication. Add `http://localhost:3000/api/google-docs/callback` and its Vercel equivalent as authorized redirect URIs. Enable the Google Docs API and Google Drive API.
-8. Sign in once with the Google account or verified email account that should become the first administrator.
+8. Sign in once with the Google account, Facebook account, or verified email account that should become the first administrator.
 9. Run the Firebase bootstrap script, using that first administrator account's email. It creates Actualize and AVBC and prints their distinct submission tokens:
 
    ```powershell

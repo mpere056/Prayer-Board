@@ -35,7 +35,7 @@ export function AddMemberForm({ groupSlug }: { groupSlug: string }) {
   return (
     <form className="card member-form" onSubmit={submit}>
       <h2>Add a member</h2>
-      <p className="muted">The person must sign in or create a verified email account before Firebase knows their account.</p>
+      <p className="muted">The person must first sign in with Google or Facebook, or create a verified email account, before Firebase knows their account.</p>
       <label>
         Email
         <input

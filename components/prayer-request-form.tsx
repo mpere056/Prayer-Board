@@ -146,7 +146,7 @@ export function PrayerRequestForm({ submissionToken }: { submissionToken: string
         </label>
         <label className="check-row">
           <input checked={identity === "named"} name="identity" onChange={() => setIdentity("named")} type="radio" />
-          <span><strong>Submit with my name</strong><br />Sign in with Google or email to confirm the name shown to the group.</span>
+          <span><strong>Submit with my name</strong><br />Sign in with Google, Facebook, or email to confirm the name shown to the group.</span>
         </label>
         <label className="check-row">
           <input checked={identity === "anonymous_to_group"} name="identity" onChange={() => setIdentity("anonymous_to_group")} type="radio" />

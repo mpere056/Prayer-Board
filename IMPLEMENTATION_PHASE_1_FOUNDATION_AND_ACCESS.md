@@ -2,17 +2,17 @@
 
 ## Purpose
 
-Create the secure foundation: Firebase Google sign-in, verified email/password accounts, verified session cookies, groups, memberships, roles, protected routes, and Firestore-enforced group isolation. No prayer request can be viewed or administered until this phase is complete.
+Create the secure foundation: Firebase Google and Facebook sign-in, verified email/password accounts, verified session cookies, groups, memberships, roles, protected routes, and Firestore-enforced group isolation. No prayer request can be viewed or administered until this phase is complete.
 
 ## Depends on
 
 - Phase 0 decisions in [the master implementation plan](IMPLEMENTATION_PLAN.md), including the organization-owned Firebase project, privacy notice, and initial groups.
-- Firebase Google sign-in and Email/Password configuration, Firestore, and Firebase Admin service-account credentials for Vercel.
+- Firebase Google, Facebook, and Email/Password configuration, Firestore, and Firebase Admin service-account credentials for Vercel.
 
 ## In scope
 
 - Next.js/TypeScript setup and Vercel-ready environment configuration.
-- Firebase Authentication Google provider, verified email/password accounts, session creation, and sign-out.
+- Firebase Authentication Google and Facebook providers, verified email/password accounts, session creation, and sign-out.
 - Firestore `users`, `groups`, and `groups/{groupId}/members` documents.
 - `member` and `admin` authorization roles.
 - Firestore security rules and Vercel server-side authorization.
@@ -21,7 +21,7 @@ Create the secure foundation: Firebase Google sign-in, verified email/password a
 
 ## Implementation steps
 
-1. Configure Firebase Authentication Google sign-in, Email/Password sign-in, and Firebase authorized domains for localhost and Vercel.
+1. Configure Firebase Authentication Google sign-in, Facebook sign-in, Email/Password sign-in, and Firebase authorized domains for localhost and Vercel.
 2. Create the browser Firebase client and server-only Firebase Admin helpers.
 3. Exchange a verified Firebase ID token for an HTTP-only session cookie in a Vercel route handler.
 4. Create Firestore rules that deny client writes to sensitive application data and prevent cross-group reads.
@@ -40,7 +40,7 @@ Create the secure foundation: Firebase Google sign-in, verified email/password a
 
 ## Acceptance criteria
 
-- A user can sign in with Google or a verified email account and sign out.
+- A user can sign in with Google, Facebook, or a verified email account and sign out.
 - An Actualize member cannot access AVBC data or routes, and vice versa.
 - An administrator can enter only their own group’s admin area.
 - A non-member who guesses a board/admin URL sees no group data.

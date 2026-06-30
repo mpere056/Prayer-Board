@@ -2,10 +2,10 @@
 
 ## 1. Delivery approach
 
-Prayer Board is a Vercel-hosted Next.js application. Firebase Authentication provides Google sign-in and verified email/password accounts, and Cloud Firestore stores group-scoped data. Vercel server routes perform all sensitive operations—including anonymous request intake, moderation, Firebase Admin access, and Google Docs publication.
+Prayer Board is a Vercel-hosted Next.js application. Firebase Authentication provides Google and Facebook sign-in plus verified email/password accounts, and Cloud Firestore stores group-scoped data. Vercel server routes perform all sensitive operations—including anonymous request intake, moderation, Firebase Admin access, and Google Docs publication.
 
 - **Application:** Next.js and TypeScript on Vercel.
-- **Authentication:** Firebase Authentication with Google and verified email/password accounts at launch; Microsoft and Apple may follow.
+- **Authentication:** Firebase Authentication with Google, Facebook, and verified email/password accounts; Microsoft and Apple may follow.
 - **Database:** Cloud Firestore in an organization-owned Firebase project.
 - **Authorization:** Firebase session cookies in Vercel; Firestore rules and server-side role checks enforce group isolation.
 - **Publication:** Google Drive/Docs API, authorized by a group administrator, creates one view-only Google Doc per group.
@@ -28,7 +28,7 @@ Detailed execution plans for the six build phases:
 
 1. Confirm guest-submission, anonymity, retention, notification, and Google Doc sharing decisions in the PRD.
 2. Create a Firebase project owned by the group/organization, with at least two trusted project administrators.
-3. Configure Firebase Google sign-in, Email/Password sign-in, Firestore, development/production environments, and Vercel secrets.
+3. Configure Firebase Google sign-in, Facebook sign-in, Email/Password sign-in, Firestore, development/production environments, and Vercel secrets.
 4. Create a separate Google OAuth client for Docs/Drive publishing, enable the required APIs, and register local/Vercel callback URLs.
 5. Write the privacy notice and administrator moderation guidance.
 6. Create Actualize and AVBC using distinct opaque submission tokens, memberships, and Google Docs.
@@ -57,7 +57,7 @@ Every prayer request is stored beneath exactly one group document. There is no c
 
 ## 4. Security and privacy requirements
 
-- Firebase Authentication identity is required for named submission, private board access, and administration; anonymous intake stays account-free. Email/password accounts must verify their email before receiving an app session.
+- Firebase Authentication identity is required for named submission, private board access, and administration; anonymous intake stays account-free. Google and Facebook use their provider identity, while email/password accounts must verify their email before receiving an app session.
 - The submission route uses a group-specific opaque token such as `/submit/[submission-token]`. It resolves server-side to exactly one group and never shows a group picker.
 - Firestore rules protect direct client access. Vercel server routes use Firebase Admin only after verifying a Firebase session and the user’s group role.
 - The `private/googleDoc` document is unreadable and unwritable to Firebase clients. It contains the encrypted Google refresh token used only by server publication jobs.
@@ -72,12 +72,12 @@ Every prayer request is stored beneath exactly one group document. There is no c
 
 - Unit tests: lifecycle transitions, publication triggers, submitter-change eligibility, validation, anonymity display, archival eligibility, and document rendering. The lifecycle suite runs with Nodeâ€™s built-in test runner.
 - Integration tests: Firebase session verification, group-role checks, Firestore rules, Google Doc publication state, and private-token access.
-- Browser tests: anonymous submission, Google sign-in, verified email sign-in, named submission, submitter change requests, moderation, publication status, and mobile flows.
+- Browser tests: anonymous submission, Google sign-in, Facebook sign-in, verified email sign-in, named submission, submitter change requests, moderation, publication status, and mobile flows.
 
 ### Manual acceptance checks
 
 - Confirm an Actualize request cannot be read, moderated, published, or discovered from AVBC, and vice versa.
-- Confirm a guest can submit anonymously without sign-in, while named submission requires Google sign-in or a verified email account.
+- Confirm a guest can submit anonymously without sign-in, while named submission requires Google, Facebook, or a verified email account.
 - Confirm the Google Doc receives active approved requests only and is viewer-only for general readers.
 - Confirm anonymous-to-group display does not leak identity in the app or Google Doc.
 - Confirm user removal revokes private app access promptly.
@@ -96,7 +96,7 @@ Every prayer request is stored beneath exactly one group document. There is no c
 ## 7. Decisions required before production
 
 1. Choose the group/organization accounts that will own Firebase, Vercel, Google Cloud, Google Docs, and the domain.
-2. Confirm Google as the launch SSO provider, keep Email/Password enabled, and decide whether Microsoft/Apple will follow.
+2. Keep Google, Facebook, and Email/Password enabled, and decide whether Microsoft/Apple will follow.
 3. Decide each Google Doc’s audience and link-sharing setting.
 4. Decide retention period, whether ongoing requests are exempt, and whether answered prayers publish to the Doc.
 5. Approve the privacy notice, moderation guidance, and backup/restore ownership.

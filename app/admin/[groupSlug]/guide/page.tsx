@@ -57,7 +57,7 @@ export default async function AdminGuidePage({ params }: { params: Promise<{ gro
             Send the submission link to this group only. People do not choose a group; the link itself determines that every request goes to {access.group.name}.
           </p>
           <p>
-            Anonymous requests do not require sign-in. Named requests require Google sign-in or a verified email account so the displayed name cannot be typed in by someone else.
+            Anonymous requests do not require sign-in. Named requests require Google, Facebook, or a verified email account so the displayed name cannot be typed in by someone else.
           </p>
         </section>
 
@@ -95,7 +95,7 @@ export default async function AdminGuidePage({ params }: { params: Promise<{ gro
               Please share prayer requests for {access.group.name} here: {submissionUrl ?? "[submission link]"}
             </p>
             <p>
-              You can submit anonymously without signing in, or sign in with Google or email if you want your name shown. Please only share details you have permission to share.
+              You can submit anonymously without signing in, or sign in with Google, Facebook, or email if you want your name shown. Please only share details you have permission to share.
             </p>
           </div>
         </section>

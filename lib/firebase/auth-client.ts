@@ -2,6 +2,7 @@
 
 import {
   createUserWithEmailAndPassword,
+  FacebookAuthProvider,
   GoogleAuthProvider,
   sendEmailVerification,
   sendPasswordResetEmail,
@@ -53,6 +54,14 @@ export async function createAppSession(user: User) {
 
 export async function signInWithGoogleAndCreateSession() {
   const result = await signInWithPopup(firebaseAuth(), new GoogleAuthProvider());
+  await createAppSession(result.user);
+  return result.user;
+}
+
+export async function signInWithFacebookAndCreateSession() {
+  const provider = new FacebookAuthProvider();
+  provider.addScope("email");
+  const result = await signInWithPopup(firebaseAuth(), provider);
   await createAppSession(result.user);
   return result.user;
 }

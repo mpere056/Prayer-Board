@@ -5,7 +5,7 @@ This project is intended to run at no cost while usage remains inside provider f
 ## Current free-first setup
 
 - Vercel hosts the Next.js app. Use the Hobby/free plan unless the project becomes commercial or needs Pro features.
-- Firebase Authentication uses Google sign-in only. Do not enable phone/SMS auth.
+- Firebase Authentication uses Google, Facebook, and email/password sign-in. Do not enable phone/SMS auth.
 - Firestore uses the single `(default)` database for the project.
 - Firestore point-in-time recovery is disabled.
 - Firestore delete protection is enabled.
