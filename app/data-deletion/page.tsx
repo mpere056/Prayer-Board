@@ -45,7 +45,7 @@ export default function DataDeletionPage() {
         </section>
 
         <p>
-          Read the <Link href="/privacy">privacy notice</Link> or <Link href="/">return to Prayer Board</Link>.
+          Read the <Link href="/privacy">privacy notice</Link>, the <Link href="/terms">Terms of Service</Link>, or <Link href="/">return to Prayer Board</Link>.
         </p>
       </article>
     </main>

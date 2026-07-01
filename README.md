@@ -32,12 +32,14 @@ Cost-sensitive setup notes are tracked in [COST_GUARDRAILS.md](COST_GUARDRAILS.m
 - Read-only administrator audit log for recent submissions, moderation, member changes, and Google Doc actions.
 - Privacy notice page and submission-form privacy reminder for request visibility, Google Doc sharing, and anonymous/named handling.
 - Public account-data deletion instructions for Meta/Facebook requirements and user privacy requests.
+- Public Terms of Service covering accounts, submission permission, moderation, sharing, and acceptable use.
 
 ## Local setup
 
 1. Create a Firebase project owned by the group/organization rather than one individual.
 2. Create a Firebase Web App and enable **Google**, **Facebook**, and **Email/Password** under **Authentication -> Sign-in method**. Facebook also requires a Meta app whose valid OAuth redirect URI is `https://<firebase-project-id>.firebaseapp.com/__/auth/handler`.
    In Meta App Settings, use the deployed `/privacy` page as the Privacy Policy URL and `/data-deletion` as the User Data Deletion Instructions URL.
+   Use the deployed `/terms` page as the Terms of Service URL.
 3. Add `localhost` and the eventual Vercel domain to Firebase Authentication’s authorized domains.
 4. Create a Firebase service account for server-side Vercel use. Copy its project ID, client email, and private key to the server-only environment values in `.env.local`.
 5. Copy `.env.example` to `.env.local` and fill in the Firebase web app, Firebase Admin, Google Docs OAuth, and encryption-key values.

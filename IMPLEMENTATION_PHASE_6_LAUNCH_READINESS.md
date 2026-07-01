@@ -56,6 +56,7 @@ Prepare the product for a real first group. Validate privacy, security, reliabil
 - [ ] Firestore exports/backups and restoration instructions are verified.
 - [x] Privacy notice and moderation guide are published.
 - [x] Public user-data deletion instructions are published for Meta/Facebook configuration.
+- [x] Public Terms of Service are published for authentication-provider configuration.
 - [ ] Production alerts do not expose prayer-request content.
 
 ## Pilot success criteria

@@ -9,6 +9,7 @@ export default function PrivacyPage() {
         <p className="lede">
           Prayer Board is built for small trusted groups. It collects only what is needed to receive, review, and share prayer requests with the group connected to the link you used.
         </p>
+        <p className="muted">Effective July 1, 2026.</p>
 
         <section>
           <h2>What is collected</h2>
@@ -61,7 +62,7 @@ export default function PrivacyPage() {
         </section>
 
         <p>
-          <Link href="/">Back to Prayer Board</Link>
+          Read the <Link href="/terms">Terms of Service</Link> or <Link href="/">return to Prayer Board</Link>.
         </p>
       </article>
     </main>
