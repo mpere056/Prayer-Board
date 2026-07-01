@@ -60,7 +60,6 @@ export async function signInWithGoogleAndCreateSession() {
 
 export async function signInWithFacebookAndCreateSession() {
   const provider = new FacebookAuthProvider();
-  provider.addScope("email");
   const result = await signInWithPopup(firebaseAuth(), provider);
   await createAppSession(result.user);
   return result.user;
