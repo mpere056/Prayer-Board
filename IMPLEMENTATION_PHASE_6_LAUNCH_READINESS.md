@@ -41,6 +41,7 @@ Prepare the product for a real first group. Validate privacy, security, reliabil
 ## Launch checklist
 
 - [ ] Google SSO works in production.
+- [ ] Facebook sign-in works in production for an app-role tester.
 - [ ] Anonymous submission requires no account.
 - [ ] Named submission cannot be impersonated without SSO.
 - [ ] Board and admin routes reject non-members and non-admins.
@@ -54,6 +55,7 @@ Prepare the product for a real first group. Validate privacy, security, reliabil
 - [ ] Publication failures are visible and retryable.
 - [ ] Firestore exports/backups and restoration instructions are verified.
 - [x] Privacy notice and moderation guide are published.
+- [x] Public user-data deletion instructions are published for Meta/Facebook configuration.
 - [ ] Production alerts do not expose prayer-request content.
 
 ## Pilot success criteria

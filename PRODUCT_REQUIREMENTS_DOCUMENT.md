@@ -224,6 +224,7 @@ The document groups requests by category when there are enough requests to make 
 | `/submit/[submission-token]/thanks` | Submission confirmation | Submitter |
 | `/sign-in` | Google and Facebook sign-in, email account creation, email sign-in, and password reset | Anyone |
 | `/privacy` | Privacy notice for request handling, identity, and Google Doc sharing | Anyone |
+| `/data-deletion` | Public instructions for deleting Prayer Board data and removing Facebook access | Anyone |
 | `/my-requests` | View linked submissions and request updates, answered status, or removal | Signed-in submitter |
 | `/board/[group-slug]` | Optional private prayer board | Member or administrator |
 | `/board/[group-slug]/answered` | Optional private answered-request view | Member or administrator |

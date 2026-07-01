@@ -55,6 +55,9 @@ export default function PrivacyPage() {
           <p>
             Ask a group administrator to remove or correct a request if it contains sensitive details, information shared without permission, or anything that should no longer be visible.
           </p>
+          <p>
+            To request removal of your account profile, memberships, prayer markers, and requests linked to your account, follow the <Link href="/data-deletion">data-deletion instructions</Link>.
+          </p>
         </section>
 
         <p>

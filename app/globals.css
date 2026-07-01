@@ -57,6 +57,7 @@ button {
 .site-footer {
   display: flex;
   justify-content: center;
+  gap: 1rem;
   padding: 2rem 0;
   color: var(--muted);
   font-size: 0.9rem;

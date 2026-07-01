@@ -38,6 +38,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
           {children}
           <footer className="site-footer">
             <Link href="/privacy">Privacy notice</Link>
+            <Link href="/data-deletion">Data deletion</Link>
           </footer>
         </div>
       </body>
